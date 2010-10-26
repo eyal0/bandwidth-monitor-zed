@@ -41,7 +41,7 @@
         MainGraph.GraphPane.Chart.Fill = New ZedGraph.Fill(Color.Black, Color.DarkGray, 90)
         MainGraph.GraphPane.YAxis.Scale.MagAuto = False
         MainGraph.GraphPane.YAxis.Scale.MajorStepAuto = False
-        MainGraph.GraphPane.YAxis.Scale.MinorStepAuto = False
+        MainGraph.GraphPane.YAxis.MinorTic.IsAllTics = False
         MainGraph.GraphPane.YAxis.Scale.MaxAuto = False
         MainGraph.GraphPane.YAxis.Scale.MaxGrace = 0
         MainGraph.GraphPane.YAxis.Scale.MinGrace = 0
@@ -207,18 +207,35 @@
         Return 0
     End Function
 
-    Private Sub ReDraw()
-        MainGraph.GraphPane.XAxis.Scale.Max = current_sample
-        MainGraph.GraphPane.XAxis.Scale.Min = MainGraph.GraphPane.XAxis.Scale.Max - MainGraph.GraphPane.Chart.Rect.Width
-        Dim MaxY As Double = 0
+    Private DestinationMaxY As Double
+
+    Private Function RecomputeMaxY() As Double
+        RecomputeMaxY = 0
         If DownloadPoints.Count > 0 Then
             For i As Integer = DownloadPoints.Count - 1 To Math.Max(0, DownloadPoints.Count - 1 - CInt(MainGraph.GraphPane.Chart.Rect.Width)) Step -1
-                MaxY = Math.Max(MaxY, DownloadPoints(i).Y)
+                RecomputeMaxY = Math.Max(RecomputeMaxY, DownloadPoints(i).Y)
+                RecomputeMaxY = Math.Max(RecomputeMaxY, UploadPoints(i).Y)
             Next
         End If
-        MainGraph.GraphPane.YAxis.Scale.Max = MaxY
+    End Function
+
+    Private Sub ReDraw()
+        MainGraph.GraphPane.XAxis.Scale.Max = current_sample
+        MainGraph.GraphPane.XAxis.Scale.Min = MainGraph.GraphPane.XAxis.Scale.Max - MainGraph.GraphPane.Chart.Rect.Width / 2
+        
+        DestinationMaxY = RecomputeMaxY()
+        Dim BigMove As Double = 0.1 * DestinationMaxY + 0.9 * MainGraph.GraphPane.YAxis.Scale.Max
+
+        If Math.Abs(MainGraph.GraphPane.YAxis.Scale.Max - BigMove) > 5 Then
+            MainGraph.GraphPane.YAxis.Scale.Max = BigMove
+            SmoothScalingTimer.Enabled = True
+        Else
+            MainGraph.GraphPane.YAxis.Scale.Max = DestinationMaxY
+            SmoothScalingTimer.Enabled = False
+        End If
+
         MainGraph.GraphPane.YAxis.Scale.MajorStep = CalcBoundedStepSize(MainGraph.GraphPane.YAxis.Scale.Max - MainGraph.GraphPane.YAxis.Scale.Min, 7)
-        MainGraph.GraphPane.YAxis.Scale.MinorStep = CalcBoundedStepSize(MainGraph.GraphPane.YAxis.Scale.MajorStep, 7)
+        'MainGraph.GraphPane.YAxis.Scale.MinorStep = CalcBoundedStepSize(MainGraph.GraphPane.YAxis.Scale.MajorStep, 7)
         MainGraph.AxisChange()
         MainGraph.Invalidate()
     End Sub
@@ -230,5 +247,9 @@
 
     Private Sub foo(ByVal sender As Object, ByVal e As PaintEventArgs) Handles MainGraph.Paint
         Debug.WriteLine("painting " & MainGraph.GraphPane.Chart.Rect.Width)
+    End Sub
+
+    Private Sub SmoothScalingTimer_Tick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles SmoothScalingTimer.Tick
+        ReDraw()
     End Sub
 End Class

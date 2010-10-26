@@ -25,6 +25,7 @@ Partial Class MainForm
         Me.components = New System.ComponentModel.Container()
         Me.SampleTimer = New System.Windows.Forms.Timer(Me.components)
         Me.MainGraph = New ZedGraph.ZedGraphControl()
+        Me.SmoothScalingTimer = New System.Windows.Forms.Timer(Me.components)
         Me.SuspendLayout()
         '
         'SampleTimer
@@ -46,6 +47,10 @@ Partial Class MainForm
         Me.MainGraph.Size = New System.Drawing.Size(284, 262)
         Me.MainGraph.TabIndex = 0
         '
+        'SmoothScalingTimer
+        '
+        Me.SmoothScalingTimer.Interval = 25
+        '
         'MainForm
         '
         Me.ClientSize = New System.Drawing.Size(284, 262)
@@ -58,4 +63,5 @@ Partial Class MainForm
     End Sub
     Friend WithEvents SampleTimer As System.Windows.Forms.Timer
     Friend WithEvents MainGraph As ZedGraph.ZedGraphControl
+    Friend WithEvents SmoothScalingTimer As System.Windows.Forms.Timer
 End Class
