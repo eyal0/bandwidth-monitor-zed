@@ -1,4 +1,5 @@
 ﻿Public Class MainForm
+    Inherits SnapForm
     'points always stored in bits, the lowest common denominator
     Dim DownloadPoints As New ZedGraph.RollingPointPairList(2000)
     Dim UploadPoints As New ZedGraph.RollingPointPairList(2000)
@@ -220,8 +221,13 @@
     End Function
 
     Private Sub ReDraw()
-        MainGraph.GraphPane.XAxis.Scale.Max = current_sample
-        MainGraph.GraphPane.XAxis.Scale.Min = MainGraph.GraphPane.XAxis.Scale.Max - MainGraph.GraphPane.Chart.Rect.Width / 2
+        If Me.WindowState <> FormWindowState.Minimized Then
+            MainGraph.GraphPane.XAxis.Scale.Max = current_sample
+            MainGraph.GraphPane.XAxis.Scale.Min = current_sample - MainGraph.GraphPane.Chart.Rect.Width / 2
+        Else
+            MainGraph.GraphPane.XAxis.Scale.Min += current_sample - MainGraph.GraphPane.XAxis.Scale.Max
+            MainGraph.GraphPane.XAxis.Scale.Max = current_sample
+        End If
 
         If SmoothScalingTimer.Enabled = False Then
             DestinationMaxY = RecomputeMaxY()
@@ -233,11 +239,13 @@
             SmoothScalingTimer.Enabled = True
         Else
             MainGraph.GraphPane.YAxis.Scale.Max = DestinationMaxY
-            SmoothScalingTimer.Enabled = False
+            DestinationMaxY = RecomputeMaxY()
+            If DestinationMaxY = MainGraph.GraphPane.YAxis.Scale.Max Then
+                SmoothScalingTimer.Enabled = False
+            End If
         End If
 
         MainGraph.GraphPane.YAxis.Scale.MajorStep = CalcBoundedStepSize(MainGraph.GraphPane.YAxis.Scale.Max - MainGraph.GraphPane.YAxis.Scale.Min, 7)
-        'MainGraph.GraphPane.YAxis.Scale.MinorStep = CalcBoundedStepSize(MainGraph.GraphPane.YAxis.Scale.MajorStep, 7)
         MainGraph.AxisChange()
         MainGraph.Invalidate()
     End Sub
@@ -245,10 +253,6 @@
     Private Sub MainGraph_Resize(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MainGraph.Resize
         MainGraph.AxisChange() 'to force recalculation of Chart size
         ReDraw() 'now redraw, which uses the new chart size
-    End Sub
-
-    Private Sub foo(ByVal sender As Object, ByVal e As PaintEventArgs) Handles MainGraph.Paint
-        Debug.WriteLine("painting " & MainGraph.GraphPane.Chart.Rect.Width)
     End Sub
 
     Private Sub SmoothScalingTimer_Tick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles SmoothScalingTimer.Tick
