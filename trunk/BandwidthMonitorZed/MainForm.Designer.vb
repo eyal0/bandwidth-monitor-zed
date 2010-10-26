@@ -1,6 +1,6 @@
 ﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
 Partial Class MainForm
-    Inherits System.Windows.Forms.Form
+    Inherits BandwidthMonitorZed.SnapForm
 
     'Form overrides dispose to clean up the component list.
     <System.Diagnostics.DebuggerNonUserCode()> _
@@ -24,17 +24,28 @@ Partial Class MainForm
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
         Me.SampleTimer = New System.Windows.Forms.Timer(Me.components)
-        Me.MainGraph = New ZedGraph.ZedGraphControl()
         Me.SmoothScalingTimer = New System.Windows.Forms.Timer(Me.components)
+        Me.MainGraph = New ZedGraph.ZedGraphControl()
         Me.SuspendLayout()
         '
         'SampleTimer
         '
         Me.SampleTimer.Interval = 1000
         '
+        'SmoothScalingTimer
+        '
+        Me.SmoothScalingTimer.Interval = 25
+        '
         'MainGraph
         '
         Me.MainGraph.Dock = System.Windows.Forms.DockStyle.Fill
+        Me.MainGraph.IsEnableHPan = False
+        Me.MainGraph.IsEnableHZoom = False
+        Me.MainGraph.IsEnableVPan = False
+        Me.MainGraph.IsEnableVZoom = False
+        Me.MainGraph.IsEnableWheelZoom = False
+        Me.MainGraph.IsShowContextMenu = False
+        Me.MainGraph.IsShowCopyMessage = False
         Me.MainGraph.Location = New System.Drawing.Point(0, 0)
         Me.MainGraph.Name = "MainGraph"
         Me.MainGraph.ScrollGrace = 0.0R
@@ -46,10 +57,6 @@ Partial Class MainForm
         Me.MainGraph.ScrollMinY2 = 0.0R
         Me.MainGraph.Size = New System.Drawing.Size(284, 262)
         Me.MainGraph.TabIndex = 0
-        '
-        'SmoothScalingTimer
-        '
-        Me.SmoothScalingTimer.Interval = 25
         '
         'MainForm
         '
