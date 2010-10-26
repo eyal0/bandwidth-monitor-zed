@@ -29,6 +29,7 @@ Partial Class MainForm
         '
         'SampleTimer
         '
+        Me.SampleTimer.Interval = 1000
         '
         'MainGraph
         '
@@ -49,7 +50,9 @@ Partial Class MainForm
         '
         Me.ClientSize = New System.Drawing.Size(284, 262)
         Me.Controls.Add(Me.MainGraph)
+        Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow
         Me.Name = "MainForm"
+        Me.Text = "Bandwidth Monitor Zed"
         Me.ResumeLayout(False)
 
     End Sub
