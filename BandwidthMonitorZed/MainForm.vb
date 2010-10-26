@@ -212,7 +212,7 @@
     Private Function RecomputeMaxY() As Double
         RecomputeMaxY = 0
         If DownloadPoints.Count > 0 Then
-            For i As Integer = DownloadPoints.Count - 1 To Math.Max(0, DownloadPoints.Count - 1 - CInt(MainGraph.GraphPane.Chart.Rect.Width)) Step -1
+            For i As Integer = DownloadPoints.Count - 1 To Math.Max(0, DownloadPoints.Count - 1 - CInt(MainGraph.GraphPane.XAxis.Scale.Max - MainGraph.GraphPane.XAxis.Scale.Min)) Step -1
                 RecomputeMaxY = Math.Max(RecomputeMaxY, DownloadPoints(i).Y)
                 RecomputeMaxY = Math.Max(RecomputeMaxY, UploadPoints(i).Y)
             Next
@@ -222,8 +222,10 @@
     Private Sub ReDraw()
         MainGraph.GraphPane.XAxis.Scale.Max = current_sample
         MainGraph.GraphPane.XAxis.Scale.Min = MainGraph.GraphPane.XAxis.Scale.Max - MainGraph.GraphPane.Chart.Rect.Width / 2
-        
-        DestinationMaxY = RecomputeMaxY()
+
+        If SmoothScalingTimer.Enabled = False Then
+            DestinationMaxY = RecomputeMaxY()
+        End If
         Dim BigMove As Double = 0.1 * DestinationMaxY + 0.9 * MainGraph.GraphPane.YAxis.Scale.Max
 
         If Math.Abs(MainGraph.GraphPane.YAxis.Scale.Max - BigMove) > 5 Then
