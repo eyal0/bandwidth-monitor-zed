@@ -213,7 +213,7 @@
     Private Function RecomputeMaxY() As Double
         RecomputeMaxY = 0
         If DownloadPoints.Count > 0 Then
-            For i As Integer = DownloadPoints.Count - 1 To Math.Max(0, DownloadPoints.Count - 1 - CInt(MainGraph.GraphPane.XAxis.Scale.Max - MainGraph.GraphPane.XAxis.Scale.Min)) Step -1
+            For i As Integer = DownloadPoints.Count - 1 To Math.Max(0, DownloadPoints.Count - CInt(MainGraph.GraphPane.XAxis.Scale.Max - MainGraph.GraphPane.XAxis.Scale.Min)) Step -1
                 RecomputeMaxY = Math.Max(RecomputeMaxY, DownloadPoints(i).Y)
                 RecomputeMaxY = Math.Max(RecomputeMaxY, UploadPoints(i).Y)
             Next
@@ -223,7 +223,7 @@
     Private Sub ReDraw()
         If Me.WindowState <> FormWindowState.Minimized Then
             MainGraph.GraphPane.XAxis.Scale.Max = current_sample
-            MainGraph.GraphPane.XAxis.Scale.Min = current_sample - MainGraph.GraphPane.Chart.Rect.Width / 2
+            MainGraph.GraphPane.XAxis.Scale.Min = current_sample - CInt(MainGraph.GraphPane.Chart.Rect.Width / 2)
         Else
             MainGraph.GraphPane.XAxis.Scale.Min += current_sample - MainGraph.GraphPane.XAxis.Scale.Max
             MainGraph.GraphPane.XAxis.Scale.Max = current_sample
