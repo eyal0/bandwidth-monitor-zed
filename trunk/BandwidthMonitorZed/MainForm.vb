@@ -209,6 +209,9 @@
     End Function
 
     Private DestinationMaxY As Double
+    Private CurrentSpeed As Double = 1.0 'as a percentage of the current size
+    Private Const MaxAcceleration As Double = 0.001
+    Private Const MaxSpeed As Double = 1.1
 
     Private Function RecomputeMaxY() As Double
         RecomputeMaxY = 0
@@ -224,25 +227,48 @@
         If Me.WindowState <> FormWindowState.Minimized Then
             MainGraph.GraphPane.XAxis.Scale.Max = current_sample
             MainGraph.GraphPane.XAxis.Scale.Min = current_sample - CInt(MainGraph.GraphPane.Chart.Rect.Width / 2)
-        Else
+        Else 'the chart size can't be trusted if minimized
             MainGraph.GraphPane.XAxis.Scale.Min += current_sample - MainGraph.GraphPane.XAxis.Scale.Max
             MainGraph.GraphPane.XAxis.Scale.Max = current_sample
         End If
 
-        If SmoothScalingTimer.Enabled = False Then
-            DestinationMaxY = RecomputeMaxY()
-        End If
-        Dim BigMove As Double = 0.1 * DestinationMaxY + 0.9 * MainGraph.GraphPane.YAxis.Scale.Max
-
-        If Math.Abs(MainGraph.GraphPane.YAxis.Scale.Max - BigMove) > 5 Then
-            MainGraph.GraphPane.YAxis.Scale.Max = BigMove
+        DestinationMaxY = RecomputeMaxY()
+        If DestinationMaxY <> MainGraph.GraphPane.YAxis.Scale.Max Then 'create a new DestinationMaxY only if not scaling at the moment
             SmoothScalingTimer.Enabled = True
-        Else
-            MainGraph.GraphPane.YAxis.Scale.Max = DestinationMaxY
-            DestinationMaxY = RecomputeMaxY()
-            If DestinationMaxY = MainGraph.GraphPane.YAxis.Scale.Max Then
-                SmoothScalingTimer.Enabled = False
-            End If
+        End If
+
+        If DestinationMaxY > MainGraph.GraphPane.YAxis.Scale.Max Then 'need to grow the graph
+            Dim TestMaxY As Double = DestinationMaxY
+            Dim TestSpeed As Double = 1
+            Do While TestMaxY > MainGraph.GraphPane.YAxis.Scale.Max And TestSpeed < CurrentSpeed + MaxAcceleration
+                TestSpeed += MaxAcceleration
+                TestMaxY = Math.Min(TestMaxY - 1, TestMaxY / TestSpeed)
+            Loop
+            'TestSpeed is the fastest that we can go without overshooting the Destination
+            CurrentSpeed = Math.Min(CurrentSpeed + MaxAcceleration, TestSpeed)
+        ElseIf DestinationMaxY < MainGraph.GraphPane.YAxis.Scale.Max Then 'need to shrink the graph
+            Dim TestMaxY As Double = DestinationMaxY
+            Dim TestSpeed As Double = 1
+            Do While TestMaxY < MainGraph.GraphPane.YAxis.Scale.Max And TestSpeed > CurrentSpeed - MaxAcceleration
+                TestSpeed -= MaxAcceleration
+                TestMaxY = Math.Max(TestMaxY + 1, TestMaxY / TestSpeed)
+            Loop
+            'TestSpeed is the fastest that we can go without overshooting the Destination
+            CurrentSpeed = Math.Max(CurrentSpeed - MaxAcceleration, TestSpeed)
+        End If
+        If (Math.Abs(DestinationMaxY - MainGraph.GraphPane.YAxis.Scale.Max) <= 1) OrElse _
+           (DestinationMaxY >= MainGraph.GraphPane.YAxis.Scale.Max AndAlso MainGraph.GraphPane.YAxis.Scale.Max * (1.0 + MaxAcceleration) >= DestinationMaxY) OrElse _
+           (DestinationMaxY <= MainGraph.GraphPane.YAxis.Scale.Max AndAlso MainGraph.GraphPane.YAxis.Scale.Max * (1.0 - MaxAcceleration) <= DestinationMaxY) Then
+            MainGraph.GraphPane.YAxis.Scale.Max = DestinationMaxY 'close enough, all done
+            SmoothScalingTimer.Enabled = False
+        ElseIf CurrentSpeed > 1 Then 'move as current speed, at least 1
+            MainGraph.GraphPane.YAxis.Scale.Max = Math.Max(MainGraph.GraphPane.YAxis.Scale.Max + 1, MainGraph.GraphPane.YAxis.Scale.Max * CurrentSpeed)
+        ElseIf CurrentSpeed < 1 Then 'move as current speed, at least 1
+            MainGraph.GraphPane.YAxis.Scale.Max = Math.Min(MainGraph.GraphPane.YAxis.Scale.Max - 1, MainGraph.GraphPane.YAxis.Scale.Max * CurrentSpeed)
+        End If
+
+        If DestinationMaxY = MainGraph.GraphPane.YAxis.Scale.Max Then
+            SmoothScalingTimer.Enabled = False
         End If
 
         MainGraph.GraphPane.YAxis.Scale.MajorStep = CalcBoundedStepSize(MainGraph.GraphPane.YAxis.Scale.Max - MainGraph.GraphPane.YAxis.Scale.Min, 7)
