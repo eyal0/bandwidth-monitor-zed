@@ -1,40 +1,16 @@
 ﻿Public Class MainForm
     Inherits SnapForm
-    'points always stored in bits, the lowest common denominator
+    'points always stored in bytes, the lowest common denominator
     Dim DownloadPoints As New ZedGraph.RollingPointPairList(2000)
     Dim UploadPoints As New ZedGraph.RollingPointPairList(2000)
 
-    Dim InBits As Boolean = True
-    Dim KiloIs1024 As Boolean = True
+    Dim DisplayInBits As Boolean = True
+    Dim DisplayKiloIs1024 As Boolean = False
 
     Private download_color As Color = Color.Red
     Private upload_color As Color = Color.Green
-    Dim dl_counters As New List(Of PerformanceCounter)
-    Dim ul_counters As New List(Of PerformanceCounter)
-    Dim old_dl_sample As Long
-    Dim old_ul_sample As Long
-    Dim old_time As Date
 
     Private Sub MainForm_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Me.Load
-        Dim c As New PerformanceCounterCategory("Network Interface")
-        For Each Name As String In c.GetInstanceNames
-            If Name = "MS TCP Loopback interface" Then
-                Continue For
-            End If
-            dl_counters.Add(New PerformanceCounter("Network Interface", "Bytes Received/sec", Name))
-            ul_counters.Add(New PerformanceCounter("Network Interface", "Bytes Sent/sec", Name))
-        Next
-        old_dl_sample = 0
-        old_ul_sample = 0
-        For Each current_counter As PerformanceCounter In dl_counters
-            old_dl_sample += current_counter.NextSample.RawValue
-        Next
-        For Each current_counter As PerformanceCounter In ul_counters
-            old_ul_sample += current_counter.NextSample.RawValue
-        Next
-
-        old_time = Now
-
         MainGraph.BorderStyle = BorderStyle.None
         MainGraph.GraphPane.XAxis.IsVisible = False
         MainGraph.GraphPane.YAxis.IsVisible = True
@@ -69,10 +45,10 @@
     End Sub
 
     Private Function ScaleFormatHandler(ByVal pane As ZedGraph.GraphPane, ByVal axis As ZedGraph.Axis, ByVal val As Double, ByVal index As Integer) As String
-        If Not InBits Then
-            val /= 8
+        If DisplayInBits Then
+            val *= 8
         End If
-        If KiloIs1024 Then
+        If DisplayKiloIs1024 Then
             If axis.Scale.MajorStep >= 1024 * 1024 * 1024 Then
                 val /= 1024 * 1024 * 1024
             ElseIf axis.Scale.MajorStep >= 1024 * 1024 Then
@@ -93,7 +69,7 @@
     End Function
 
     Public Function ScaleTitleHandler(ByVal axis As ZedGraph.Axis) As String
-        If KiloIs1024 Then
+        If DisplayKiloIs1024 Then
             If axis.Scale.MajorStep >= 1024 * 1024 * 1024 Then
                 ScaleTitleHandler = "Ti"
             ElseIf axis.Scale.MajorStep >= 1024 * 1024 Then
@@ -114,35 +90,45 @@
                 ScaleTitleHandler = ""
             End If
         End If
-        If Not InBits Then
-            ScaleTitleHandler &= "B/s"
-        Else
+        If DisplayInBits Then
             ScaleTitleHandler &= "b/s"
+        Else
+            ScaleTitleHandler &= "B/s"
         End If
-
     End Function
 
     Dim current_sample As Integer = 0
 
     Private Sub SampleTimer_Tick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles SampleTimer.Tick
+        Static Dim old_dl_sample As Long = -1
+        Static Dim old_ul_sample As Long = -1
+        Static Dim old_time As Date = Date.MinValue
+
+        Dim dl_counters As New List(Of PerformanceCounter)
+        Dim ul_counters As New List(Of PerformanceCounter)
+        Dim c As New PerformanceCounterCategory("Network Interface")
+        Dim new_dl_sample As Long = 0
+        Dim new_ul_sample As Long = 0
+
         Dim new_time As DateTime = Now
-        If (new_time > old_time) Then
-            Dim new_dl_sample As Long = 0
-            For Each current_counter As PerformanceCounter In dl_counters
-                new_dl_sample += current_counter.NextSample.RawValue
-            Next
-            DownloadPoints.Add(current_sample, CDbl((new_dl_sample - old_dl_sample) * 8) / (new_time - old_time).TotalSeconds)
-            old_dl_sample = new_dl_sample
-
-            Dim new_ul_sample As Long = 0
-            For Each current_counter As PerformanceCounter In ul_counters
-                new_ul_sample += current_counter.NextSample.RawValue
-            Next
-            UploadPoints.Add(current_sample, CDbl((new_ul_sample - old_ul_sample) * 8) / (new_time - old_time).TotalSeconds)
-            old_ul_sample = new_ul_sample
-
-            old_time = new_time
+        For Each Name As String In c.GetInstanceNames
+            If Name = "MS TCP Loopback interface" Then
+                Continue For
+            End If
+            Dim dl_pc As New PerformanceCounter("Network Interface", "Bytes Received/sec", Name, True)
+            new_dl_sample += dl_pc.RawValue
+            Dim ul_pc As New PerformanceCounter("Network Interface", "Bytes Sent/sec", Name, True)
+            new_ul_sample += ul_pc.RawValue
+        Next
+        If new_time > old_time Then
+            If old_time <> Date.MinValue Then 'not the first sample
+                DownloadPoints.Add(current_sample, (new_dl_sample - old_dl_sample) / (new_time - old_time).TotalSeconds)
+                UploadPoints.Add(current_sample, (new_ul_sample - old_ul_sample) / (new_time - old_time).TotalSeconds)
+            End If
         End If
+        old_time = new_time
+        old_dl_sample = new_dl_sample
+        old_ul_sample = new_ul_sample
         ReDraw()
         current_sample += 1
     End Sub
@@ -166,11 +152,11 @@
     Private Function CalcBoundedStepSize(ByVal range As Double, ByVal maxSteps As Double) As Double
         Dim tempStep As Double = range / maxSteps
         If tempStep <> 0 Then
-            If Not InBits Then tempStep /= 8 'take out 8 before doing the work
+            If DisplayInBits Then tempStep *= 8 'we will multiply by 8 for display
 
             Dim mag As Double
             Dim magPow As Double
-            If KiloIs1024 Then
+            If DisplayKiloIs1024 Then
                 mag = Math.Floor(SafeLog(tempStep, 1024))
                 magPow = SafePow(1024, mag)
             Else
@@ -202,7 +188,7 @@
                 magMsd = 2
             End If
 
-            If Not InBits Then magMsd *= 8 'put 8 back in
+            If DisplayInBits Then magPow /= 8 'factor out the 8 that we just factored in
             Return magMsd * magPow
         End If
         Return 0
@@ -237,7 +223,6 @@
             SmoothScalingTimer.Enabled = True
         End If
 
-        MainGraph.GraphPane.YAxis.Scale.MajorStep = CalcBoundedStepSize(MainGraph.GraphPane.YAxis.Scale.Max - MainGraph.GraphPane.YAxis.Scale.Min, 7)
         MainGraph.AxisChange()
         MainGraph.Invalidate()
     End Sub
@@ -277,6 +262,7 @@
         ElseIf CurrentSpeed < 1 Then 'move as current speed, at least 1
             MainGraph.GraphPane.YAxis.Scale.Max = Math.Min(MainGraph.GraphPane.YAxis.Scale.Max - 1, MainGraph.GraphPane.YAxis.Scale.Max * CurrentSpeed)
         End If
+        MainGraph.GraphPane.YAxis.Scale.MajorStep = CalcBoundedStepSize(MainGraph.GraphPane.YAxis.Scale.Max - MainGraph.GraphPane.YAxis.Scale.Min, 7)
         MainGraph.AxisChange()
         MainGraph.Invalidate()
     End Sub
