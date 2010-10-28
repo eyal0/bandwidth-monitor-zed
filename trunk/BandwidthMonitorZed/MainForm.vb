@@ -40,7 +40,6 @@
         AddHandler MainGraph.GraphPane.YAxis.ScaleTitleEvent, AddressOf ScaleTitleHandler
         MainGraph.GraphPane.AddCurve("Download", DownloadPoints, Color.Red, ZedGraph.SymbolType.None)
         MainGraph.GraphPane.AddCurve("Upload", UploadPoints, Color.Green, ZedGraph.SymbolType.None)
-        'MainGraph.AxisChange()
         SampleTimer.Enabled = True
     End Sub
 
