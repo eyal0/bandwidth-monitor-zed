@@ -3,10 +3,7 @@
     'points always stored in bytes, the lowest common denominator
     Dim DownloadPoints As New ZedGraph.RollingPointPairList(2000)
     Dim UploadPoints As New ZedGraph.RollingPointPairList(2000)
-
-    Dim DisplayInBits As Boolean = True
-    Dim DisplayKiloIs1024 As Boolean = False
-
+    Dim WithEvents config As BMZConfig = New BMZConfig
     Private download_color As Color = Color.Red
     Private upload_color As Color = Color.Green
 
@@ -15,7 +12,7 @@
         MainGraph.GraphPane.XAxis.IsVisible = False
         MainGraph.GraphPane.YAxis.IsVisible = True
         MainGraph.GraphPane.Fill = New ZedGraph.Fill(Color.Black, Color.DarkGray, 90)
-        MainGraph.GraphPane.Chart.Fill = New ZedGraph.Fill(Color.Black, Color.DarkGray, 90)
+        MainGraph.GraphPane.Chart.Fill = New ZedGraph.Fill(Color.Transparent)
         MainGraph.GraphPane.YAxis.Scale.MagAuto = False
         MainGraph.GraphPane.YAxis.Scale.MajorStepAuto = False
         MainGraph.GraphPane.YAxis.MinorTic.IsAllTics = False
@@ -23,6 +20,7 @@
         MainGraph.GraphPane.YAxis.Scale.MaxGrace = 0
         MainGraph.GraphPane.YAxis.Scale.MinGrace = 0
         MainGraph.GraphPane.YAxis.Scale.MinAuto = False
+        MainGraph.GraphPane.YAxis.Scale.IsSkipFirstLabel = True
         MainGraph.GraphPane.YAxis.Title.IsOmitMag = True
         MainGraph.GraphPane.YAxis.Scale.FontSpec.FontColor = Color.White
         MainGraph.GraphPane.YAxis.Title.FontSpec.FontColor = Color.White
@@ -30,11 +28,11 @@
         MainGraph.GraphPane.YAxis.MajorGrid.Color = Color.LightGray
         MainGraph.GraphPane.YAxis.MajorGrid.DashOff = 2
         MainGraph.GraphPane.YAxis.MajorGrid.DashOn = 3
+        MainGraph.GraphPane.IsFontsScaled = False
 
         MainGraph.GraphPane.Title.IsVisible = False
         MainGraph.GraphPane.Legend.IsVisible = False
-        'MainGraph.GraphPane.Margin.Left = 1
-        'MainGraph.GraphPane.Margin.Right = 1
+        MainGraph.GraphPane.Margin.All = 0
         MainGraph.GraphPane.Chart.Border.IsVisible = False
         AddHandler MainGraph.GraphPane.YAxis.ScaleFormatEvent, AddressOf ScaleFormatHandler
         AddHandler MainGraph.GraphPane.YAxis.ScaleTitleEvent, AddressOf ScaleTitleHandler
@@ -44,23 +42,25 @@
     End Sub
 
     Private Function ScaleFormatHandler(ByVal pane As ZedGraph.GraphPane, ByVal axis As ZedGraph.Axis, ByVal val As Double, ByVal index As Integer) As String
-        If DisplayInBits Then
+        Dim MyMajorStep As Double = axis.Scale.MajorStep
+        If Not config.DisplayInBytes Then
             val *= 8
+            MyMajorStep *= 8
         End If
-        If DisplayKiloIs1024 Then
-            If axis.Scale.MajorStep >= 1024 * 1024 * 1024 Then
+        If config.KiloIs1024 Then
+            If MyMajorStep >= 1024 * 1024 * 1024 Then
                 val /= 1024 * 1024 * 1024
-            ElseIf axis.Scale.MajorStep >= 1024 * 1024 Then
+            ElseIf MyMajorStep >= 1024 * 1024 Then
                 val /= 1024 * 1024
-            ElseIf axis.Scale.MajorStep >= 1024 Then
+            ElseIf MyMajorStep >= 1024 Then
                 val /= 1024
             End If
         Else
-            If axis.Scale.MajorStep >= 100000000 Then
+            If MyMajorStep >= 100000000 Then
                 val /= 1000000000
-            ElseIf axis.Scale.MajorStep >= 100000 Then
+            ElseIf MyMajorStep >= 100000 Then
                 val /= 1000000
-            ElseIf axis.Scale.MajorStep >= 100 Then
+            ElseIf MyMajorStep >= 100 Then
                 val /= 1000
             End If
         End If
@@ -68,32 +68,46 @@
     End Function
 
     Public Function ScaleTitleHandler(ByVal axis As ZedGraph.Axis) As String
-        If DisplayKiloIs1024 Then
-            If axis.Scale.MajorStep >= 1024 * 1024 * 1024 Then
-                ScaleTitleHandler = "Ti"
-            ElseIf axis.Scale.MajorStep >= 1024 * 1024 Then
-                ScaleTitleHandler = "Mi"
-            ElseIf axis.Scale.MajorStep >= 1024 Then
-                ScaleTitleHandler = "ki"
+        Dim MyMajorStep As Double = axis.Scale.MajorStep
+        If Not config.DisplayInBytes Then
+            MyMajorStep *= 8
+        End If
+        Dim MaxValue As Double = MainGraph.GraphPane.YAxis.Scale.Max
+        Dim Units As String = ""
+        If config.KiloIs1024 Then
+            If MyMajorStep >= 1024 * 1024 * 1024 Then
+                Units = "Ti"
+                MaxValue /= 1024 * 1024 * 1024
+            ElseIf MyMajorStep >= 1024 * 1024 Then
+                Units = "Mi"
+                MaxValue /= 1024 * 1024
+            ElseIf MyMajorStep >= 1024 Then
+                Units = "ki"
+                MaxValue /= 1024
             Else
-                ScaleTitleHandler = ""
+                Units = ""
             End If
         Else
-            If axis.Scale.MajorStep >= 100000000 Then
-                ScaleTitleHandler = "T"
-            ElseIf axis.Scale.MajorStep >= 100000 Then
-                ScaleTitleHandler = "M"
-            ElseIf axis.Scale.MajorStep >= 100 Then
-                ScaleTitleHandler = "k"
+            If MyMajorStep >= 100000000 Then
+                Units = "T"
+                MaxValue /= 1000 * 1000 * 1000
+            ElseIf MyMajorStep >= 100000 Then
+                Units = "M"
+                MaxValue /= 1000 * 1000
+            ElseIf MyMajorStep >= 100 Then
+                Units = "k"
+                MaxValue /= 1000
             Else
-                ScaleTitleHandler = ""
+                Units = ""
             End If
         End If
-        If DisplayInBits Then
-            ScaleTitleHandler &= "b/s"
+        If config.DisplayInBytes Then
+            Units &= "B/s"
         Else
-            ScaleTitleHandler &= "B/s"
+            Units &= "b/s"
+            MaxValue *= 8
         End If
+        ScaleTitleHandler = String.Format("{0} ({1:f} {0} Max)", Units, MaxValue)
     End Function
 
     Dim current_sample As Integer = 0
@@ -149,13 +163,14 @@
     End Function
 
     Private Function CalcBoundedStepSize(ByVal range As Double, ByVal maxSteps As Double) As Double
+        If range < 0 Then range = 0
+        If Not config.DisplayInBytes Then range *= 8 'we will multiply by 8 for display
         Dim tempStep As Double = range / maxSteps
         If tempStep <> 0 Then
-            If DisplayInBits Then tempStep *= 8 'we will multiply by 8 for display
 
             Dim mag As Double
             Dim magPow As Double
-            If DisplayKiloIs1024 Then
+            If config.KiloIs1024 Then
                 mag = Math.Floor(SafeLog(tempStep, 1024))
                 magPow = SafePow(1024, mag)
             Else
@@ -187,7 +202,7 @@
                 magMsd = 2
             End If
 
-            If DisplayInBits Then magPow /= 8 'factor out the 8 that we just factored in
+            If Not config.DisplayInBytes Then magPow /= 8 'factor out the 8 that we just factored in
             Return magMsd * magPow
         End If
         Return 0
@@ -264,5 +279,38 @@
         MainGraph.GraphPane.YAxis.Scale.MajorStep = CalcBoundedStepSize(MainGraph.GraphPane.YAxis.Scale.Max - MainGraph.GraphPane.YAxis.Scale.Min, 7)
         MainGraph.AxisChange()
         MainGraph.Invalidate()
+    End Sub
+
+    Private Sub config_DisplayInBytesChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles config.DisplayInBytesChanged, _
+                                                                                                          config.KiloIs1024Changed
+        MainGraph.GraphPane.YAxis.Scale.MajorStep = CalcBoundedStepSize(MainGraph.GraphPane.YAxis.Scale.Max - MainGraph.GraphPane.YAxis.Scale.Min, 7)
+        MainGraph.AxisChange()
+        MainGraph.Invalidate()
+    End Sub
+
+    Private Sub config_YAxisStyleChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles config.YAxisStyleChanged
+        Select Case config.YAxisStyle
+            Case BMZConfig.DisplayYAxisType.None
+                MainGraph.GraphPane.YAxis.IsVisible = False
+            Case BMZConfig.DisplayYAxisType.Max
+                MainGraph.GraphPane.YAxis.IsVisible = True
+                MainGraph.GraphPane.YAxis.MajorTic.IsAllTics = False
+                MainGraph.GraphPane.YAxis.MajorGrid.IsVisible = False
+                MainGraph.GraphPane.YAxis.Scale.IsVisible = False
+            Case BMZConfig.DisplayYAxisType.Scale
+                MainGraph.GraphPane.YAxis.IsVisible = True
+                MainGraph.GraphPane.YAxis.MajorTic.IsAllTics = True
+                MainGraph.GraphPane.YAxis.MajorGrid.IsVisible = True
+                MainGraph.GraphPane.YAxis.Scale.IsVisible = True
+        End Select
+        MainGraph.AxisChange()
+        MainGraph.Invalidate()
+    End Sub
+
+    Private Sub MainGraph_MouseClick(ByVal sender As System.Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles MainGraph.MouseClick
+        If e.Button = Windows.Forms.MouseButtons.Right Then
+            Dim cf As New ConfigForm(config)
+            cf.Show(Me)
+        End If
     End Sub
 End Class
