@@ -162,7 +162,7 @@
         End Function
     End Structure
 
-    Private MouseStart As Point
+    Private MouseOffset As Size
 
     Protected Overrides Sub WndProc(ByRef m As Message)
         'Listen for operating system messages
@@ -178,15 +178,13 @@
             '    NewPosition.cy = FinalRect.Height
             '    Runtime.InteropServices.Marshal.StructureToPtr(NewPosition, m.LParam, True)
             Case WM_MOVING
-                Dim MouseOffset As New Size(Cursor.Position.X - MouseStart.X, Cursor.Position.Y - MouseStart.Y)
-
-                Dim FinalRect As Rectangle = SnapToDesktopBorder(New Rectangle(Me.Location + MouseOffset, Me.Size))
+                Dim FinalRect As Rectangle = SnapToDesktopBorder(New Rectangle(Cursor.Position + MouseOffset, Me.Size))
                 ' Marshal it back
                 Dim NewRect As New RECT(FinalRect)
                 Runtime.InteropServices.Marshal.StructureToPtr(NewRect, m.LParam, True)
             Case WM_ENTERSIZEMOVE
                 'remember where the mouse is so that we can play with the rectangle safely
-                MouseStart = Cursor.Position
+                MouseOffset = CType(Me.Location - CType(Cursor.Position, Size), Drawing.Size)
         End Select
 
         MyBase.WndProc(m)
