@@ -35,6 +35,7 @@ Global
 		{2541686B-1673-43BF-AF89-3163945DB009}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
 		{2541686B-1673-43BF-AF89-3163945DB009}.Release|Mixed Platforms.Build.0 = Release|Any CPU
 		{2541686B-1673-43BF-AF89-3163945DB009}.Release|x86.ActiveCfg = Release|Any CPU
+		{2541686B-1673-43BF-AF89-3163945DB009}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
