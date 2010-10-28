@@ -237,6 +237,17 @@
             SmoothScalingTimer.Enabled = True
         End If
 
+        MainGraph.GraphPane.YAxis.Scale.MajorStep = CalcBoundedStepSize(MainGraph.GraphPane.YAxis.Scale.Max - MainGraph.GraphPane.YAxis.Scale.Min, 7)
+        MainGraph.AxisChange()
+        MainGraph.Invalidate()
+    End Sub
+
+    Private Sub MainGraph_Resize(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MainGraph.Resize
+        MainGraph.AxisChange() 'to force recalculation of Chart size
+        ReDraw() 'now redraw, which uses the new chart size
+    End Sub
+
+    Private Sub SmoothScalingTimer_Tick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles SmoothScalingTimer.Tick
         If DestinationMaxY > MainGraph.GraphPane.YAxis.Scale.Max Then 'need to grow the graph
             Dim TestMaxY As Double = DestinationMaxY
             Dim TestSpeed As Double = 1
@@ -266,22 +277,7 @@
         ElseIf CurrentSpeed < 1 Then 'move as current speed, at least 1
             MainGraph.GraphPane.YAxis.Scale.Max = Math.Min(MainGraph.GraphPane.YAxis.Scale.Max - 1, MainGraph.GraphPane.YAxis.Scale.Max * CurrentSpeed)
         End If
-
-        If DestinationMaxY = MainGraph.GraphPane.YAxis.Scale.Max Then
-            SmoothScalingTimer.Enabled = False
-        End If
-
-        MainGraph.GraphPane.YAxis.Scale.MajorStep = CalcBoundedStepSize(MainGraph.GraphPane.YAxis.Scale.Max - MainGraph.GraphPane.YAxis.Scale.Min, 7)
         MainGraph.AxisChange()
         MainGraph.Invalidate()
-    End Sub
-
-    Private Sub MainGraph_Resize(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MainGraph.Resize
-        MainGraph.AxisChange() 'to force recalculation of Chart size
-        ReDraw() 'now redraw, which uses the new chart size
-    End Sub
-
-    Private Sub SmoothScalingTimer_Tick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles SmoothScalingTimer.Tick
-        ReDraw()
     End Sub
 End Class
