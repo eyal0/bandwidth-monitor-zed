@@ -27,18 +27,18 @@
     End Property
     Event KiloIs1024Changed(ByVal sender As Object, ByVal e As System.EventArgs)
 
-    Public Enum DisplayYAxisType
+    Public Enum DisplayYAxisStyle
         None
         Max
         Scale
     End Enum
 
-    Private YAxisStyle_ As DisplayYAxisType = DisplayYAxisType.Scale
-    Property YAxisStyle() As DisplayYAxisType
+    Private YAxisStyle_ As DisplayYAxisStyle = DisplayYAxisStyle.Scale
+    Property YAxisStyle() As DisplayYAxisStyle
         Get
             Return YAxisStyle_
         End Get
-        Set(ByVal value As DisplayYAxisType)
+        Set(ByVal value As DisplayYAxisStyle)
             If value <> YAxisStyle_ Then
                 YAxisStyle_ = value
                 RaiseEvent YAxisStyleChanged(Me, New System.EventArgs)
@@ -46,4 +46,10 @@
         End Set
     End Property
     Event YAxisStyleChanged(ByVal sender As Object, ByVal e As System.EventArgs)
+
+    Public Enum DisplayXAxisStyle
+        None
+        Time
+        RelativeTime
+    End Enum
 End Class

@@ -9,7 +9,8 @@
 
     Private Sub MainForm_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Me.Load
         MainGraph.BorderStyle = BorderStyle.None
-        MainGraph.GraphPane.XAxis.IsVisible = False
+        MainGraph.GraphPane.XAxis.IsVisible = True
+        MainGraph.GraphPane.XAxis.Type = ZedGraph.AxisType.Date
         MainGraph.GraphPane.YAxis.IsVisible = True
         MainGraph.GraphPane.Fill = New ZedGraph.Fill(Color.Black, Color.DarkGray, 90)
         MainGraph.GraphPane.Chart.Fill = New ZedGraph.Fill(Color.Transparent)
@@ -110,8 +111,6 @@
         ScaleTitleHandler = String.Format("{0} ({1:f} {0} Max)", Units, MaxValue)
     End Function
 
-    Dim current_sample As Integer = 0
-
     Private Sub SampleTimer_Tick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles SampleTimer.Tick
         Static Dim old_dl_sample As Long = -1
         Static Dim old_ul_sample As Long = -1
@@ -135,15 +134,16 @@
         Next
         If new_time > old_time Then
             If old_time <> Date.MinValue Then 'not the first sample
-                DownloadPoints.Add(current_sample, (new_dl_sample - old_dl_sample) / (new_time - old_time).TotalSeconds)
-                UploadPoints.Add(current_sample, (new_ul_sample - old_ul_sample) / (new_time - old_time).TotalSeconds)
+                DownloadPoints.Add(ZedGraph.XDate.DateTimeToXLDate(old_time), (new_dl_sample - old_dl_sample) / (new_time - old_time).TotalSeconds)
+                UploadPoints.Add(ZedGraph.XDate.DateTimeToXLDate(old_time), (new_ul_sample - old_ul_sample) / (new_time - old_time).TotalSeconds)
+                DownloadPoints.Add(ZedGraph.XDate.DateTimeToXLDate(new_time), (new_dl_sample - old_dl_sample) / (new_time - old_time).TotalSeconds)
+                UploadPoints.Add(ZedGraph.XDate.DateTimeToXLDate(new_time), (new_ul_sample - old_ul_sample) / (new_time - old_time).TotalSeconds)
             End If
         End If
         old_time = new_time
         old_dl_sample = new_dl_sample
         old_ul_sample = new_ul_sample
         ReDraw()
-        current_sample += 1
     End Sub
 
     Function SafeLog(ByVal d As Double, ByVal newBase As Double) As Double
@@ -216,22 +216,26 @@
     Private Function RecomputeMaxY() As Double
         RecomputeMaxY = 0
         If DownloadPoints.Count > 0 Then
-            For i As Integer = DownloadPoints.Count - 1 To Math.Max(0, DownloadPoints.Count - CInt(MainGraph.GraphPane.XAxis.Scale.Max - MainGraph.GraphPane.XAxis.Scale.Min)) Step -1
+            Dim i As Integer = DownloadPoints.Count - 1
+            While i >= 0 AndAlso DownloadPoints(i).X >= MainGraph.GraphPane.XAxis.Scale.Min
                 RecomputeMaxY = Math.Max(RecomputeMaxY, DownloadPoints(i).Y)
                 RecomputeMaxY = Math.Max(RecomputeMaxY, UploadPoints(i).Y)
-            Next
+                i -= 1
+            End While
         End If
     End Function
 
     Private Sub ReDraw()
-        If Me.WindowState <> FormWindowState.Minimized Then
-            MainGraph.GraphPane.XAxis.Scale.Max = current_sample
-            MainGraph.GraphPane.XAxis.Scale.Min = current_sample - CInt(MainGraph.GraphPane.Chart.Rect.Width / 2)
-        Else 'the chart size can't be trusted if minimized
-            MainGraph.GraphPane.XAxis.Scale.Min += current_sample - MainGraph.GraphPane.XAxis.Scale.Max
-            MainGraph.GraphPane.XAxis.Scale.Max = current_sample
+        If DownloadPoints.Count > 0 Then
+            Dim current_time As DateTime = Now
+            If Me.WindowState <> FormWindowState.Minimized Then
+                MainGraph.GraphPane.XAxis.Scale.Max = ZedGraph.XDate.DateTimeToXLDate(current_time)
+                MainGraph.GraphPane.XAxis.Scale.Min = ZedGraph.XDate.DateTimeToXLDate(current_time - TimeSpan.FromSeconds(MainGraph.GraphPane.Chart.Rect.Width / 3))
+            Else 'the chart size can't be trusted if minimized
+                MainGraph.GraphPane.XAxis.Scale.Min += ZedGraph.XDate.DateTimeToXLDate(current_time) - MainGraph.GraphPane.XAxis.Scale.Max
+                MainGraph.GraphPane.XAxis.Scale.Max = ZedGraph.XDate.DateTimeToXLDate(current_time)
+            End If
         End If
-
         DestinationMaxY = RecomputeMaxY()
         If DestinationMaxY <> MainGraph.GraphPane.YAxis.Scale.Max Then 'create a new DestinationMaxY only if not scaling at the moment
             SmoothScalingTimer.Enabled = True
@@ -283,28 +287,27 @@
 
     Private Sub config_DisplayInBytesChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles config.DisplayInBytesChanged, _
                                                                                                           config.KiloIs1024Changed
-        MainGraph.GraphPane.YAxis.Scale.MajorStep = CalcBoundedStepSize(MainGraph.GraphPane.YAxis.Scale.Max - MainGraph.GraphPane.YAxis.Scale.Min, 7)
-        MainGraph.AxisChange()
-        MainGraph.Invalidate()
+        MainGraph.AxisChange() 'to force recalculation of Chart size
+        ReDraw()
     End Sub
 
     Private Sub config_YAxisStyleChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles config.YAxisStyleChanged
         Select Case config.YAxisStyle
-            Case BMZConfig.DisplayYAxisType.None
+            Case BMZConfig.DisplayYAxisStyle.None
                 MainGraph.GraphPane.YAxis.IsVisible = False
-            Case BMZConfig.DisplayYAxisType.Max
+            Case BMZConfig.DisplayYAxisStyle.Max
                 MainGraph.GraphPane.YAxis.IsVisible = True
                 MainGraph.GraphPane.YAxis.MajorTic.IsAllTics = False
                 MainGraph.GraphPane.YAxis.MajorGrid.IsVisible = False
                 MainGraph.GraphPane.YAxis.Scale.IsVisible = False
-            Case BMZConfig.DisplayYAxisType.Scale
+            Case BMZConfig.DisplayYAxisStyle.Scale
                 MainGraph.GraphPane.YAxis.IsVisible = True
                 MainGraph.GraphPane.YAxis.MajorTic.IsAllTics = True
                 MainGraph.GraphPane.YAxis.MajorGrid.IsVisible = True
                 MainGraph.GraphPane.YAxis.Scale.IsVisible = True
         End Select
-        MainGraph.AxisChange()
-        MainGraph.Invalidate()
+        MainGraph.AxisChange() 'to force recalculation of Chart size
+        ReDraw()
     End Sub
 
     Private Sub MainGraph_MouseClick(ByVal sender As System.Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles MainGraph.MouseClick
