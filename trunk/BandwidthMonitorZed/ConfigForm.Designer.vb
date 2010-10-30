@@ -26,10 +26,11 @@ Partial Class ConfigForm
         Me.chkDisplayInBytes = New System.Windows.Forms.CheckBox()
         Me.radYAxisNone = New System.Windows.Forms.RadioButton()
         Me.gbxYAxisStyle = New System.Windows.Forms.GroupBox()
-        Me.radYAxisMax = New System.Windows.Forms.RadioButton()
         Me.radYAxisScale = New System.Windows.Forms.RadioButton()
+        Me.radYAxisMax = New System.Windows.Forms.RadioButton()
         Me.btnClose = New System.Windows.Forms.Button()
         Me.btnSave = New System.Windows.Forms.Button()
+        Me.chkShowBars = New System.Windows.Forms.CheckBox()
         Me.gbxYAxisStyle.SuspendLayout()
         Me.SuspendLayout()
         '
@@ -69,23 +70,12 @@ Partial Class ConfigForm
         Me.gbxYAxisStyle.Controls.Add(Me.radYAxisScale)
         Me.gbxYAxisStyle.Controls.Add(Me.radYAxisMax)
         Me.gbxYAxisStyle.Controls.Add(Me.radYAxisNone)
-        Me.gbxYAxisStyle.Location = New System.Drawing.Point(12, 58)
+        Me.gbxYAxisStyle.Location = New System.Drawing.Point(12, 81)
         Me.gbxYAxisStyle.Name = "gbxYAxisStyle"
         Me.gbxYAxisStyle.Size = New System.Drawing.Size(94, 88)
         Me.gbxYAxisStyle.TabIndex = 3
         Me.gbxYAxisStyle.TabStop = False
         Me.gbxYAxisStyle.Text = "YAxis"
-        '
-        'radYAxisMax
-        '
-        Me.radYAxisMax.AutoSize = True
-        Me.radYAxisMax.Location = New System.Drawing.Point(6, 42)
-        Me.radYAxisMax.Name = "radYAxisMax"
-        Me.radYAxisMax.Size = New System.Drawing.Size(75, 17)
-        Me.radYAxisMax.TabIndex = 3
-        Me.radYAxisMax.TabStop = True
-        Me.radYAxisMax.Text = "Show Max"
-        Me.radYAxisMax.UseVisualStyleBackColor = True
         '
         'radYAxisScale
         '
@@ -98,11 +88,22 @@ Partial Class ConfigForm
         Me.radYAxisScale.Text = "Show Scale"
         Me.radYAxisScale.UseVisualStyleBackColor = True
         '
+        'radYAxisMax
+        '
+        Me.radYAxisMax.AutoSize = True
+        Me.radYAxisMax.Location = New System.Drawing.Point(6, 42)
+        Me.radYAxisMax.Name = "radYAxisMax"
+        Me.radYAxisMax.Size = New System.Drawing.Size(75, 17)
+        Me.radYAxisMax.TabIndex = 3
+        Me.radYAxisMax.TabStop = True
+        Me.radYAxisMax.Text = "Show Max"
+        Me.radYAxisMax.UseVisualStyleBackColor = True
+        '
         'btnClose
         '
         Me.btnClose.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnClose.DialogResult = System.Windows.Forms.DialogResult.Cancel
-        Me.btnClose.Location = New System.Drawing.Point(156, 173)
+        Me.btnClose.Location = New System.Drawing.Point(157, 201)
         Me.btnClose.Name = "btnClose"
         Me.btnClose.Size = New System.Drawing.Size(56, 23)
         Me.btnClose.TabIndex = 4
@@ -112,12 +113,22 @@ Partial Class ConfigForm
         'btnSave
         '
         Me.btnSave.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.btnSave.Location = New System.Drawing.Point(94, 173)
+        Me.btnSave.Location = New System.Drawing.Point(95, 201)
         Me.btnSave.Name = "btnSave"
         Me.btnSave.Size = New System.Drawing.Size(56, 23)
         Me.btnSave.TabIndex = 5
         Me.btnSave.Text = "Save"
         Me.btnSave.UseVisualStyleBackColor = True
+        '
+        'chkShowBars
+        '
+        Me.chkShowBars.AutoSize = True
+        Me.chkShowBars.Location = New System.Drawing.Point(12, 58)
+        Me.chkShowBars.Name = "chkShowBars"
+        Me.chkShowBars.Size = New System.Drawing.Size(77, 17)
+        Me.chkShowBars.TabIndex = 6
+        Me.chkShowBars.Text = "Show Bars"
+        Me.chkShowBars.UseVisualStyleBackColor = True
         '
         'ConfigForm
         '
@@ -125,7 +136,8 @@ Partial Class ConfigForm
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.CancelButton = Me.btnClose
-        Me.ClientSize = New System.Drawing.Size(224, 208)
+        Me.ClientSize = New System.Drawing.Size(225, 236)
+        Me.Controls.Add(Me.chkShowBars)
         Me.Controls.Add(Me.btnSave)
         Me.Controls.Add(Me.btnClose)
         Me.Controls.Add(Me.gbxYAxisStyle)
@@ -147,4 +159,5 @@ Partial Class ConfigForm
     Friend WithEvents radYAxisMax As System.Windows.Forms.RadioButton
     Friend WithEvents btnClose As System.Windows.Forms.Button
     Friend WithEvents btnSave As System.Windows.Forms.Button
+    Friend WithEvents chkShowBars As System.Windows.Forms.CheckBox
 End Class
