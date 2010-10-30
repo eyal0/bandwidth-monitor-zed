@@ -27,6 +27,20 @@
     End Property
     Event KiloIs1024Changed(ByVal sender As Object, ByVal e As System.EventArgs)
 
+    Private ShowBars_ As Boolean = True
+    Property ShowBars As Boolean
+        Get
+            Return ShowBars_
+        End Get
+        Set(ByVal value As Boolean)
+            If ShowBars_ <> value Then
+                ShowBars_ = value
+                RaiseEvent ShowBarsChanged(Me, New System.EventArgs)
+            End If
+        End Set
+    End Property
+    Event ShowBarsChanged(ByVal sender As Object, ByVal e As System.EventArgs)
+
     Public Enum DisplayYAxisStyle
         None
         Max

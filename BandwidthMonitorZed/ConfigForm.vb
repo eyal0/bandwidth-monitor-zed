@@ -23,6 +23,7 @@
     Private Sub SaveToConfig()
         config.DisplayInBytes = chkDisplayInBytes.Checked
         config.KiloIs1024 = chkKiloIs1024.Checked
+        config.ShowBars = chkShowBars.Checked
         If radYAxisMax.Checked Then config.YAxisStyle = BMZConfig.DisplayYAxisStyle.Max
         If radYAxisNone.Checked Then config.YAxisStyle = BMZConfig.DisplayYAxisStyle.None
         If radYAxisScale.Checked Then config.YAxisStyle = BMZConfig.DisplayYAxisStyle.Scale
@@ -31,6 +32,7 @@
     Private Sub LoadFromConfig()
         chkDisplayInBytes.Checked = config.DisplayInBytes
         chkKiloIs1024.Checked = config.KiloIs1024
+        chkShowBars.Checked = config.ShowBars
         Select Case config.YAxisStyle
             Case BMZConfig.DisplayYAxisStyle.Max
                 radYAxisMax.Checked = True

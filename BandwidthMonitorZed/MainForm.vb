@@ -1,13 +1,15 @@
 ﻿Public Class MainForm
     Inherits SnapForm
     'points always stored in bytes, the lowest common denominator
-    Dim DownloadPoints As New ZedGraph.RollingPointPairList(2000)
-    Dim UploadPoints As New ZedGraph.RollingPointPairList(2000)
+    Dim DownloadPoints As New BMZPointPairList(2000)
+    Dim UploadPoints As New BMZPointPairList(2000)
     Dim WithEvents config As BMZConfig = New BMZConfig
     Private download_color As Color = Color.Red
     Private upload_color As Color = Color.Green
 
     Private Sub MainForm_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Me.Load
+        'DownloadPoints.UseBars = True
+        'UploadPoints.UseBars = True
         MainGraph.BorderStyle = BorderStyle.None
         MainGraph.GraphPane.XAxis.IsVisible = True
         MainGraph.GraphPane.XAxis.Type = ZedGraph.AxisType.Date
@@ -134,8 +136,6 @@
         Next
         If new_time > old_time Then
             If old_time <> Date.MinValue Then 'not the first sample
-                DownloadPoints.Add(ZedGraph.XDate.DateTimeToXLDate(old_time), (new_dl_sample - old_dl_sample) / (new_time - old_time).TotalSeconds)
-                UploadPoints.Add(ZedGraph.XDate.DateTimeToXLDate(old_time), (new_ul_sample - old_ul_sample) / (new_time - old_time).TotalSeconds)
                 DownloadPoints.Add(ZedGraph.XDate.DateTimeToXLDate(new_time), (new_dl_sample - old_dl_sample) / (new_time - old_time).TotalSeconds)
                 UploadPoints.Add(ZedGraph.XDate.DateTimeToXLDate(new_time), (new_ul_sample - old_ul_sample) / (new_time - old_time).TotalSeconds)
             End If
@@ -287,7 +287,12 @@
 
     Private Sub config_DisplayInBytesChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles config.DisplayInBytesChanged, _
                                                                                                           config.KiloIs1024Changed
-        MainGraph.AxisChange() 'to force recalculation of Chart size
+        ReDraw()
+    End Sub
+
+    Private Sub config_ShowBarsChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles config.ShowBarsChanged
+        DownloadPoints.UseBars = config.ShowBars
+        UploadPoints.UseBars = config.ShowBars
         ReDraw()
     End Sub
 
