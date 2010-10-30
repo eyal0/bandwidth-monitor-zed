@@ -27,6 +27,10 @@
         If radYAxisMax.Checked Then config.YAxisStyle = BMZConfig.DisplayYAxisStyle.Max
         If radYAxisNone.Checked Then config.YAxisStyle = BMZConfig.DisplayYAxisStyle.None
         If radYAxisScale.Checked Then config.YAxisStyle = BMZConfig.DisplayYAxisStyle.Scale
+        If radXAxisNone.Checked Then config.XAxisStyle = BMZConfig.DisplayXAxisStyle.None
+        If radXAxisTime.Checked Then config.XAxisStyle = BMZConfig.DisplayXAxisStyle.Time
+        If radXAxisRelative.Checked Then config.XAxisStyle = BMZConfig.DisplayXAxisStyle.Relative
+        config.SaveToRegistry()
     End Sub
 
     Private Sub LoadFromConfig()
@@ -40,6 +44,14 @@
                 radYAxisNone.Checked = True
             Case BMZConfig.DisplayYAxisStyle.Scale
                 radYAxisScale.Checked = True
+        End Select
+        Select Case config.XAxisStyle
+            Case BMZConfig.DisplayXAxisStyle.Time
+                radXAxisTime.Checked = True
+            Case BMZConfig.DisplayXAxisStyle.None
+                radXAxisNone.Checked = True
+            Case BMZConfig.DisplayXAxisStyle.Relative
+                radXAxisRelative.Checked = True
         End Select
     End Sub
 End Class

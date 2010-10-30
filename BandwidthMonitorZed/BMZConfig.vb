@@ -27,7 +27,7 @@
     End Property
     Event KiloIs1024Changed(ByVal sender As Object, ByVal e As System.EventArgs)
 
-    Private ShowBars_ As Boolean = True
+    Private ShowBars_ As Boolean = False
     Property ShowBars As Boolean
         Get
             Return ShowBars_
@@ -64,6 +64,41 @@
     Public Enum DisplayXAxisStyle
         None
         Time
-        RelativeTime
+        Relative
     End Enum
+    Private XAxisStyle_ As DisplayXAxisStyle = DisplayXAxisStyle.None
+    Property XAxisStyle As DisplayXAxisStyle
+        Get
+            Return XAxisStyle_
+        End Get
+        Set(ByVal value As DisplayXAxisStyle)
+            If value <> XAxisStyle_ Then
+                XAxisStyle_ = value
+                RaiseEvent XAxisStyleChanged(Me, New System.EventArgs)
+            End If
+        End Set
+    End Property
+    Event XAxisStyleChanged(ByVal sender As Object, ByVal e As System.EventArgs)
+
+    Public Sub SaveToRegistry()
+        Dim Software As Microsoft.Win32.RegistryKey = My.Computer.Registry.CurrentUser.OpenSubKey("Software", True)
+        Dim BMZ As Microsoft.Win32.RegistryKey = Software.CreateSubKey("BandwidthMonitorZed")
+        BMZ.SetValue("DisplayInBytes", DisplayInBytes_, Microsoft.Win32.RegistryValueKind.DWord)
+        BMZ.SetValue("KiloIs1024", KiloIs1024_, Microsoft.Win32.RegistryValueKind.DWord)
+        BMZ.SetValue("ShowBars", ShowBars_, Microsoft.Win32.RegistryValueKind.DWord)
+        BMZ.SetValue("YAxisStyle", YAxisStyle_, Microsoft.Win32.RegistryValueKind.DWord)
+        BMZ.SetValue("XAxisStyle", XAxisStyle_, Microsoft.Win32.RegistryValueKind.DWord)
+    End Sub
+
+    Public Sub LoadFromRegistry()
+        Dim Software As Microsoft.Win32.RegistryKey = My.Computer.Registry.CurrentUser.OpenSubKey("Software", True)
+        Dim BMZ As Microsoft.Win32.RegistryKey = Software.OpenSubKey("BandwidthMonitorZed")
+        If BMZ IsNot Nothing Then
+            DisplayInBytes = CBool(BMZ.GetValue("DisplayInBytes", False))
+            KiloIs1024 = CBool(BMZ.GetValue("KiloIs1024", False))
+            ShowBars = CBool(BMZ.GetValue("ShowBars", False))
+            YAxisStyle = CType(BMZ.GetValue("YAxisStyle", DisplayYAxisStyle.Scale), DisplayYAxisStyle)
+            XAxisStyle = CType(BMZ.GetValue("XAxisStyle", DisplayXAxisStyle.None), DisplayXAxisStyle)
+        End If
+    End Sub
 End Class
