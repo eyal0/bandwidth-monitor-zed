@@ -58,19 +58,19 @@
             XScaleFormatHandler &= "-"
             val = -val
         End If
-        If val > 24 * 60 * 60 * 1000 Then
+        If Math.Floor(val / (24 * 60 * 60 * 1000)) > 0 Then
             XScaleFormatHandler &= Math.Floor(val / (24 * 60 * 60 * 1000)) & "d"
             val = val Mod (24 * 60 * 60 * 1000)
         End If
-        If val > 60 * 60 * 1000 Then
+        If Math.Floor(val / (60 * 60 * 1000)) > 0 Then
             XScaleFormatHandler &= Math.Floor(val / (60 * 60 * 1000)) & "h"
             val = val Mod (60 * 60 * 1000)
         End If
-        If val > 60 * 1000 Then
+        If Math.Floor(val / (60 * 1000)) > 0 Then
             XScaleFormatHandler &= Math.Floor(val / (60 * 1000)) & "m"
             val = val Mod (60 * 1000)
         End If
-        If val > 1000 Then
+        If Math.Floor(val / 1000) > 0 Then
             XScaleFormatHandler &= Math.Floor(val / 1000) & "s"
             val = val Mod 1000
         End If
@@ -314,6 +314,8 @@
 
     Private Function RecomputeMaxY() As Double
         RecomputeMaxY = 0
+        DownloadMax = 0
+        UploadMax = 0
         If DownloadPoints.Count > 0 Then
             Dim i As Integer = DownloadPoints.Count - 1
             While i >= 0 AndAlso DownloadPoints(i).X >= MainGraph.GraphPane.XAxis.Scale.Min
