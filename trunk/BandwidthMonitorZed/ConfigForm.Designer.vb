@@ -31,7 +31,12 @@ Partial Class ConfigForm
         Me.btnClose = New System.Windows.Forms.Button()
         Me.btnSave = New System.Windows.Forms.Button()
         Me.chkShowBars = New System.Windows.Forms.CheckBox()
+        Me.gbxXAxisStyle = New System.Windows.Forms.GroupBox()
+        Me.radXAxisRelative = New System.Windows.Forms.RadioButton()
+        Me.radXAxisTime = New System.Windows.Forms.RadioButton()
+        Me.radXAxisNone = New System.Windows.Forms.RadioButton()
         Me.gbxYAxisStyle.SuspendLayout()
+        Me.gbxXAxisStyle.SuspendLayout()
         Me.SuspendLayout()
         '
         'chkKiloIs1024
@@ -72,7 +77,7 @@ Partial Class ConfigForm
         Me.gbxYAxisStyle.Controls.Add(Me.radYAxisNone)
         Me.gbxYAxisStyle.Location = New System.Drawing.Point(12, 81)
         Me.gbxYAxisStyle.Name = "gbxYAxisStyle"
-        Me.gbxYAxisStyle.Size = New System.Drawing.Size(94, 88)
+        Me.gbxYAxisStyle.Size = New System.Drawing.Size(129, 88)
         Me.gbxYAxisStyle.TabIndex = 3
         Me.gbxYAxisStyle.TabStop = False
         Me.gbxYAxisStyle.Text = "YAxis"
@@ -103,7 +108,7 @@ Partial Class ConfigForm
         '
         Me.btnClose.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnClose.DialogResult = System.Windows.Forms.DialogResult.Cancel
-        Me.btnClose.Location = New System.Drawing.Point(157, 201)
+        Me.btnClose.Location = New System.Drawing.Point(223, 201)
         Me.btnClose.Name = "btnClose"
         Me.btnClose.Size = New System.Drawing.Size(56, 23)
         Me.btnClose.TabIndex = 4
@@ -113,7 +118,7 @@ Partial Class ConfigForm
         'btnSave
         '
         Me.btnSave.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.btnSave.Location = New System.Drawing.Point(95, 201)
+        Me.btnSave.Location = New System.Drawing.Point(161, 201)
         Me.btnSave.Name = "btnSave"
         Me.btnSave.Size = New System.Drawing.Size(56, 23)
         Me.btnSave.TabIndex = 5
@@ -130,13 +135,59 @@ Partial Class ConfigForm
         Me.chkShowBars.Text = "Show Bars"
         Me.chkShowBars.UseVisualStyleBackColor = True
         '
+        'gbxXAxisStyle
+        '
+        Me.gbxXAxisStyle.Controls.Add(Me.radXAxisRelative)
+        Me.gbxXAxisStyle.Controls.Add(Me.radXAxisTime)
+        Me.gbxXAxisStyle.Controls.Add(Me.radXAxisNone)
+        Me.gbxXAxisStyle.Location = New System.Drawing.Point(147, 81)
+        Me.gbxXAxisStyle.Name = "gbxXAxisStyle"
+        Me.gbxXAxisStyle.Size = New System.Drawing.Size(132, 88)
+        Me.gbxXAxisStyle.TabIndex = 7
+        Me.gbxXAxisStyle.TabStop = False
+        Me.gbxXAxisStyle.Text = "XAxis"
+        '
+        'radXAxisRelative
+        '
+        Me.radXAxisRelative.AutoSize = True
+        Me.radXAxisRelative.Location = New System.Drawing.Point(6, 65)
+        Me.radXAxisRelative.Name = "radXAxisRelative"
+        Me.radXAxisRelative.Size = New System.Drawing.Size(120, 17)
+        Me.radXAxisRelative.TabIndex = 4
+        Me.radXAxisRelative.TabStop = True
+        Me.radXAxisRelative.Text = "Show Relative Time"
+        Me.radXAxisRelative.UseVisualStyleBackColor = True
+        '
+        'radXAxisTime
+        '
+        Me.radXAxisTime.AutoSize = True
+        Me.radXAxisTime.Location = New System.Drawing.Point(6, 42)
+        Me.radXAxisTime.Name = "radXAxisTime"
+        Me.radXAxisTime.Size = New System.Drawing.Size(78, 17)
+        Me.radXAxisTime.TabIndex = 3
+        Me.radXAxisTime.TabStop = True
+        Me.radXAxisTime.Text = "Show Time"
+        Me.radXAxisTime.UseVisualStyleBackColor = True
+        '
+        'radXAxisNone
+        '
+        Me.radXAxisNone.AutoSize = True
+        Me.radXAxisNone.Location = New System.Drawing.Point(6, 19)
+        Me.radXAxisNone.Name = "radXAxisNone"
+        Me.radXAxisNone.Size = New System.Drawing.Size(51, 17)
+        Me.radXAxisNone.TabIndex = 2
+        Me.radXAxisNone.TabStop = True
+        Me.radXAxisNone.Text = "None"
+        Me.radXAxisNone.UseVisualStyleBackColor = True
+        '
         'ConfigForm
         '
         Me.AcceptButton = Me.btnSave
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.CancelButton = Me.btnClose
-        Me.ClientSize = New System.Drawing.Size(225, 236)
+        Me.ClientSize = New System.Drawing.Size(291, 236)
+        Me.Controls.Add(Me.gbxXAxisStyle)
         Me.Controls.Add(Me.chkShowBars)
         Me.Controls.Add(Me.btnSave)
         Me.Controls.Add(Me.btnClose)
@@ -147,6 +198,8 @@ Partial Class ConfigForm
         Me.Text = "Configuration - BMZ"
         Me.gbxYAxisStyle.ResumeLayout(False)
         Me.gbxYAxisStyle.PerformLayout()
+        Me.gbxXAxisStyle.ResumeLayout(False)
+        Me.gbxXAxisStyle.PerformLayout()
         Me.ResumeLayout(False)
         Me.PerformLayout()
 
@@ -160,4 +213,8 @@ Partial Class ConfigForm
     Friend WithEvents btnClose As System.Windows.Forms.Button
     Friend WithEvents btnSave As System.Windows.Forms.Button
     Friend WithEvents chkShowBars As System.Windows.Forms.CheckBox
+    Friend WithEvents gbxXAxisStyle As System.Windows.Forms.GroupBox
+    Friend WithEvents radXAxisRelative As System.Windows.Forms.RadioButton
+    Friend WithEvents radXAxisTime As System.Windows.Forms.RadioButton
+    Friend WithEvents radXAxisNone As System.Windows.Forms.RadioButton
 End Class
