@@ -107,6 +107,8 @@
                     current_num *= 60 * 1000
                 Case "s"
                     current_num *= 1000
+                Case ""
+                    'assume ms current_num *= 1
                 Case Else
                     current_num = 0
             End Select
@@ -132,6 +134,10 @@
     End Function
 
     Private Sub txtSamplePeriod_Validating(ByVal sender As Object, ByVal e As System.ComponentModel.CancelEventArgs) Handles txtSamplePeriod.Validating
-        txtSamplePeriod.Text = MillisecondsToText(TextToMilliseconds(txtSamplePeriod.Text))
+        If TextToMilliseconds(txtSamplePeriod.Text) > 0 Then
+            txtSamplePeriod.Text = MillisecondsToText(TextToMilliseconds(txtSamplePeriod.Text))
+        Else
+            e.Cancel = True
+        End If
     End Sub
 End Class
