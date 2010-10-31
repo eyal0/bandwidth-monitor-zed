@@ -84,72 +84,12 @@
 
 
     Private Function YScaleFormatHandler(ByVal pane As ZedGraph.GraphPane, ByVal axis As ZedGraph.Axis, ByVal val As Double, ByVal index As Integer) As String
-        Dim MyMajorStep As Double = axis.Scale.MajorStep
-        If Not config.DisplayInBytes Then
-            val *= 8
-            MyMajorStep *= 8
-        End If
-        If config.KiloIs1024 Then
-            If MyMajorStep >= 1024 * 1024 * 1024 Then
-                val /= 1024 * 1024 * 1024
-            ElseIf MyMajorStep >= 1024 * 1024 Then
-                val /= 1024 * 1024
-            ElseIf MyMajorStep >= 1024 Then
-                val /= 1024
-            End If
-        Else
-            If MyMajorStep >= 100000000 Then
-                val /= 1000000000
-            ElseIf MyMajorStep >= 100000 Then
-                val /= 1000000
-            ElseIf MyMajorStep >= 100 Then
-                val /= 1000
-            End If
-        End If
+        val *= MultFactor
         Return val.ToString
     End Function
 
     Public Function YScaleTitleHandler(ByVal axis As ZedGraph.Axis) As String
-        Dim MyMajorStep As Double = axis.Scale.MajorStep
-        If Not config.DisplayInBytes Then
-            MyMajorStep *= 8
-        End If
-        Dim MaxValueFactor As Double = 1.0
-        Dim Units As String = ""
-        If config.KiloIs1024 Then
-            If MyMajorStep >= 1024 * 1024 * 1024 Then
-                Units = "Ti"
-                MaxValueFactor /= 1024 * 1024 * 1024
-            ElseIf MyMajorStep >= 1024 * 1024 Then
-                Units = "Mi"
-                MaxValueFactor /= 1024 * 1024
-            ElseIf MyMajorStep >= 1024 Then
-                Units = "ki"
-                MaxValueFactor /= 1024
-            Else
-                Units = ""
-            End If
-        Else
-            If MyMajorStep >= 100000000 Then
-                Units = "T"
-                MaxValueFactor /= 1000 * 1000 * 1000
-            ElseIf MyMajorStep >= 100000 Then
-                Units = "M"
-                MaxValueFactor /= 1000 * 1000
-            ElseIf MyMajorStep >= 100 Then
-                Units = "k"
-                MaxValueFactor /= 1000
-            Else
-                Units = ""
-            End If
-        End If
-        If config.DisplayInBytes Then
-            Units &= "B/s"
-        Else
-            Units &= "b/s"
-            MaxValueFactor *= 8
-        End If
-        YScaleTitleHandler = String.Format("{0} (Max: {1:f} {0} U/L, {2:f} {0} D/L)", Units, MaxValueFactor * UploadMax, MaxValueFactor * DownloadMax)
+        YScaleTitleHandler = UnitString
     End Function
 
     Private Sub SampleTimer_Tick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles SampleTimer.Tick
@@ -259,7 +199,16 @@
         Return 0
     End Function
 
-    Private Function CalcYBoundedStepSize(ByVal range As Double, ByVal maxSteps As Double) As Double
+    ''' <summary>
+    ''' Recalculate the major step size for the yAxis and update it
+    ''' </summary>
+    ''' <remarks></remarks>
+    Private Sub CalcYBoundedStepSize()
+        Static old_range As Double = 0
+        Dim range As Double = MainGraph.GraphPane.YAxis.Scale.Max - MainGraph.GraphPane.YAxis.Scale.Min
+        If old_range = range Then Exit Sub 'no change so don't bother
+        old_range = range
+        Const maxSteps As Double = 7
         If range < 0 Then range = 0
         If Not config.DisplayInBytes Then range *= 8 'we will multiply by 8 for display
         Dim tempStep As Double = range / maxSteps
@@ -300,22 +249,141 @@
             End If
 
             If Not config.DisplayInBytes Then magPow /= 8 'factor out the 8 that we just factored in
-            Return magMsd * magPow
+            MainGraph.GraphPane.YAxis.Scale.MajorStep = magMsd * magPow
+        Else
+            MainGraph.GraphPane.YAxis.Scale.MajorStep = 0
         End If
-        Return 0
-    End Function
 
-    Private DownloadMax As Double
-    Private UploadMax As Double
-    Private DestinationMaxY As Double
+        Static old_major_step As Double = 0
+        If old_major_step = MainGraph.GraphPane.YAxis.Scale.MajorStep Then Exit Sub 'no change, don't bother
+        old_major_step = MainGraph.GraphPane.YAxis.Scale.MajorStep
+        'now that we know that major step size, we can figure out the Units and YAxisMultFactor again
+        Dim MyMajorStep As Double = MainGraph.GraphPane.YAxis.Scale.MajorStep
+        Dim MultFactor As Double = 1.0
+        Dim UnitString As String = ""
+        If Not config.DisplayInBytes Then
+            MyMajorStep *= 8
+        End If
+        MultFactor = 1.0
+        UnitString = ""
+        If config.KiloIs1024 Then
+            If MyMajorStep >= 1024 * 1024 * 1024 Then
+                UnitString = "Ti"
+                MultFactor /= 1024 * 1024 * 1024
+            ElseIf MyMajorStep >= 1024 * 1024 Then
+                UnitString = "Mi"
+                MultFactor /= 1024 * 1024
+            ElseIf MyMajorStep >= 1024 Then
+                UnitString = "ki"
+                MultFactor /= 1024
+            Else
+                UnitString = ""
+            End If
+        Else
+            If MyMajorStep >= 100000000 Then
+                UnitString = "T"
+                MultFactor /= 1000 * 1000 * 1000
+            ElseIf MyMajorStep >= 100000 Then
+                UnitString = "M"
+                MultFactor /= 1000 * 1000
+            ElseIf MyMajorStep >= 100 Then
+                UnitString = "k"
+                MultFactor /= 1000
+            Else
+                UnitString = ""
+            End If
+        End If
+        If config.DisplayInBytes Then
+            UnitString &= "B/s"
+        Else
+            UnitString &= "b/s"
+            MultFactor *= 8
+        End If
+        Me.UnitString = UnitString
+        Me.MultFactor = MultFactor
+    End Sub
+
+    Private Sub UpdateTitle()
+        Me.Text = String.Format("BMZ (Max: {1:f}{0} U/L {2:f}{0} D/L)", UnitString, UploadMax * MultFactor, DownloadMax * MultFactor)
+    End Sub
+
+    Private UnitString_ As String
+    Public Property UnitString As String
+        Get
+            Return UnitString_
+        End Get
+        Private Set(ByVal value As String)
+            If UnitString_ <> value Then
+                UnitString_ = value
+                UpdateTitle()
+            End If
+        End Set
+    End Property
+
+    Private MultFactor_ As Double
+    Public Property MultFactor As Double
+        Get
+            Return MultFactor_
+        End Get
+        Private Set(ByVal value As Double)
+            If MultFactor_ <> value Then
+                MultFactor_ = value
+                UpdateTitle()
+            End If
+        End Set
+    End Property
+
+    Private UploadMax_ As Double
+    Property UploadMax As Double
+        Get
+            Return UploadMax_
+        End Get
+        Private Set(ByVal value As Double)
+            If UploadMax_ <> value Then
+                UploadMax_ = value
+                UpdateTitle()
+            End If
+        End Set
+    End Property
+
+    Private DownloadMax_ As Double
+    Property DownloadMax As Double
+        Get
+            Return DownloadMax_
+        End Get
+        Private Set(ByVal value As Double)
+            If DownloadMax_ <> value Then
+                DownloadMax_ = value
+                UpdateTitle()
+            End If
+        End Set
+    End Property
+
+    Private DestinationMaxY_ As Double
+    Property DestinationMaxY As Double
+        Get
+            Return DestinationMaxY_
+        End Get
+        Private Set(ByVal value As Double)
+            If DestinationMaxY_ <> value Then
+                DestinationMaxY_ = value
+                If DestinationMaxY_ <> MainGraph.GraphPane.YAxis.Scale.Max Then
+                    SmoothScalingTimer.Enabled = True
+                End If
+            End If
+        End Set
+    End Property
     Private CurrentSpeed As Double = 1.0 'as a percentage of the current size
     Private Const MaxAcceleration As Double = 0.001
     Private Const MaxSpeed As Double = 1.1
 
-    Private Function RecomputeMaxY() As Double
-        RecomputeMaxY = 0
-        DownloadMax = 0
-        UploadMax = 0
+    ''' <summary>
+    ''' Recompute max u/l, max d/l, and max of u/l,d/l
+    ''' </summary>
+    ''' <remarks></remarks>
+    Private Sub RecomputeMaxY()
+        Dim DownloadMax As Double = 0
+        Dim UploadMax As Double = 0
         If DownloadPoints.Count > 0 Then
             Dim i As Integer = DownloadPoints.Count - 1
             While i >= 0 AndAlso DownloadPoints(i).X >= MainGraph.GraphPane.XAxis.Scale.Min
@@ -323,9 +391,11 @@
                 UploadMax = Math.Max(UploadMax, UploadPoints(i).Y)
                 i -= 1
             End While
-            RecomputeMaxY = Math.Max(DownloadMax, UploadMax)
         End If
-    End Function
+        Me.DownloadMax = DownloadMax
+        Me.UploadMax = UploadMax
+        Me.DestinationMaxY = Math.Max(DownloadMax, UploadMax)
+    End Sub
 
     Private Sub ReDraw()
         If DownloadPoints.Count > 0 Then
@@ -344,13 +414,11 @@
                 MainGraph.GraphPane.XAxis.Scale.Max = DownloadPoints(DownloadPoints.Count - 1).X
             End If
         End If
-        DestinationMaxY = RecomputeMaxY()
-        If DestinationMaxY <> MainGraph.GraphPane.YAxis.Scale.Max Then 'create a new DestinationMaxY only if not scaling at the moment
-            SmoothScalingTimer.Enabled = True
-        End If
+        RecomputeMaxY()
         If config.XAxisStyle = BMZConfig.DisplayXAxisStyle.Relative Then
             MainGraph.GraphPane.XAxis.Scale.MajorStep = CalcXBoundedStepSize(MainGraph.GraphPane.XAxis.Scale.Max - MainGraph.GraphPane.XAxis.Scale.Min, 7)
         End If
+        CalcYBoundedStepSize()
         MainGraph.AxisChange()
         MainGraph.Invalidate()
     End Sub
@@ -390,7 +458,7 @@
         ElseIf CurrentSpeed < 1 Then 'move as current speed, at least 1
             MainGraph.GraphPane.YAxis.Scale.Max = Math.Min(MainGraph.GraphPane.YAxis.Scale.Max - 1, MainGraph.GraphPane.YAxis.Scale.Max * CurrentSpeed)
         End If
-        MainGraph.GraphPane.YAxis.Scale.MajorStep = CalcYBoundedStepSize(MainGraph.GraphPane.YAxis.Scale.Max - MainGraph.GraphPane.YAxis.Scale.Min, 7)
+        CalcYBoundedStepSize()
         MainGraph.AxisChange()
         MainGraph.Invalidate()
     End Sub
@@ -458,5 +526,9 @@
             Dim cf As New ConfigForm(config)
             cf.Show(Me)
         End If
+    End Sub
+
+    Private Sub config_SamplePeriodMillisecondsChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles config.SamplePeriodMillisecondsChanged
+        SampleTimer.Interval = config.SamplePeriodMilliseconds
     End Sub
 End Class

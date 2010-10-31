@@ -30,7 +30,7 @@ Partial Class MainForm
         '
         'SampleTimer
         '
-        Me.SampleTimer.Interval = 1000
+        Me.SampleTimer.Interval = 5000
         '
         'SmoothScalingTimer
         '
