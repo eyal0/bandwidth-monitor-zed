@@ -43,7 +43,7 @@
     Public ReadOnly Property Count As Integer Implements ZedGraph.IPointListEdit.Count
         Get
             If UseBars_ Then
-                Return Math.Max(0, rppl.Count * 2 - 1)
+                Return Math.Max(0, rppl.Count * 2 - 2)
             Else
                 Return rppl.Count
             End If
@@ -56,9 +56,9 @@
             If UseBars_ Then
                 If index Mod 2 = 1 Then
                     ret = rppl((index + 1) \ 2).Clone()
-                    ret.X = rppl.Item((index - 1) \ 2).X
                 Else
-                    ret = rppl(index \ 2).Clone()
+                    ret = rppl((index + 2) \ 2).Clone()
+                    ret.X = rppl(index \ 2).X
                 End If
             Else
                 ret = rppl(index).Clone()
@@ -69,7 +69,7 @@
             Return ret
         End Get
         Set(ByVal value As ZedGraph.PointPair)
-            Throw New ApplicationException("Don't know how to do this")
+            Throw New ApplicationException("Can't set BMZ points")
         End Set
     End Property
 

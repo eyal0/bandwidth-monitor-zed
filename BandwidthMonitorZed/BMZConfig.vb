@@ -80,25 +80,42 @@
     End Property
     Event XAxisStyleChanged(ByVal sender As Object, ByVal e As System.EventArgs)
 
+    Private SamplePeriodMilliseconds_ As Integer
+    Property SamplePeriodMilliseconds As Integer
+        Get
+            Return SamplePeriodMilliseconds_
+        End Get
+        Set(ByVal value As Integer)
+            If SamplePeriodMilliseconds_ <> value Then
+                SamplePeriodMilliseconds_ = value
+                RaiseEvent SamplePeriodMillisecondsChanged(Me, New System.EventArgs)
+            End If
+        End Set
+    End Property
+    Event SamplePeriodMillisecondsChanged(ByVal sender As Object, ByVal e As System.EventArgs)
+
+    Private Const BMZ_REGISTRY_KEY As String = "Bandwidth Monitor Zed"
     Public Sub SaveToRegistry()
         Dim Software As Microsoft.Win32.RegistryKey = My.Computer.Registry.CurrentUser.OpenSubKey("Software", True)
-        Dim BMZ As Microsoft.Win32.RegistryKey = Software.CreateSubKey("BandwidthMonitorZed")
-        BMZ.SetValue("DisplayInBytes", DisplayInBytes_, Microsoft.Win32.RegistryValueKind.DWord)
-        BMZ.SetValue("KiloIs1024", KiloIs1024_, Microsoft.Win32.RegistryValueKind.DWord)
-        BMZ.SetValue("ShowBars", ShowBars_, Microsoft.Win32.RegistryValueKind.DWord)
-        BMZ.SetValue("YAxisStyle", YAxisStyle_, Microsoft.Win32.RegistryValueKind.DWord)
-        BMZ.SetValue("XAxisStyle", XAxisStyle_, Microsoft.Win32.RegistryValueKind.DWord)
+        Dim BMZ As Microsoft.Win32.RegistryKey = Software.CreateSubKey(BMZ_REGISTRY_KEY)
+        BMZ.SetValue("DisplayInBytes", DisplayInBytes, Microsoft.Win32.RegistryValueKind.DWord)
+        BMZ.SetValue("KiloIs1024", KiloIs1024, Microsoft.Win32.RegistryValueKind.DWord)
+        BMZ.SetValue("ShowBars", ShowBars, Microsoft.Win32.RegistryValueKind.DWord)
+        BMZ.SetValue("YAxisStyle", YAxisStyle, Microsoft.Win32.RegistryValueKind.DWord)
+        BMZ.SetValue("XAxisStyle", XAxisStyle, Microsoft.Win32.RegistryValueKind.DWord)
+        BMZ.SetValue("SamplePeriodMilliseconds", SamplePeriodMilliseconds, Microsoft.Win32.RegistryValueKind.DWord)
     End Sub
 
     Public Sub LoadFromRegistry()
         Dim Software As Microsoft.Win32.RegistryKey = My.Computer.Registry.CurrentUser.OpenSubKey("Software", True)
-        Dim BMZ As Microsoft.Win32.RegistryKey = Software.OpenSubKey("BandwidthMonitorZed")
+        Dim BMZ As Microsoft.Win32.RegistryKey = Software.OpenSubKey(BMZ_REGISTRY_KEY)
         If BMZ IsNot Nothing Then
             DisplayInBytes = CBool(BMZ.GetValue("DisplayInBytes", False))
             KiloIs1024 = CBool(BMZ.GetValue("KiloIs1024", False))
             ShowBars = CBool(BMZ.GetValue("ShowBars", False))
             YAxisStyle = CType(BMZ.GetValue("YAxisStyle", DisplayYAxisStyle.Scale), DisplayYAxisStyle)
             XAxisStyle = CType(BMZ.GetValue("XAxisStyle", DisplayXAxisStyle.None), DisplayXAxisStyle)
+            SamplePeriodMilliseconds = CInt(BMZ.GetValue("SamplePeriodMilliseconds", 1000))
         End If
     End Sub
 End Class
