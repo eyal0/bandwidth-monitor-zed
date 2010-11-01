@@ -251,7 +251,7 @@
 
             If Not config.DisplayInBytes Then magPow /= 8 'factor out the 8 that we just factored in
             MainGraph.GraphPane.YAxis.Scale.MajorStep = magMsd * magPow
-        Else()
+        Else
             MainGraph.GraphPane.YAxis.Scale.MajorStep = 0
         End If
 
