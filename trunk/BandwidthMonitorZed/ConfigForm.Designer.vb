@@ -37,6 +37,8 @@ Partial Class ConfigForm
         Me.MainTabControl = New System.Windows.Forms.TabControl()
         Me.TabGeneral = New System.Windows.Forms.TabPage()
         Me.TabSampling = New System.Windows.Forms.TabPage()
+        Me.lblSampleWidth = New System.Windows.Forms.Label()
+        Me.txtSampleWidth = New System.Windows.Forms.TextBox()
         Me.txtSamplePeriod = New System.Windows.Forms.TextBox()
         Me.lblSamplePeriod = New System.Windows.Forms.Label()
         Me.SamplePeriodTrackBar = New System.Windows.Forms.TrackBar()
@@ -207,6 +209,8 @@ Partial Class ConfigForm
         '
         'TabSampling
         '
+        Me.TabSampling.Controls.Add(Me.lblSampleWidth)
+        Me.TabSampling.Controls.Add(Me.txtSampleWidth)
         Me.TabSampling.Controls.Add(Me.txtSamplePeriod)
         Me.TabSampling.Controls.Add(Me.lblSamplePeriod)
         Me.TabSampling.Controls.Add(Me.SamplePeriodTrackBar)
@@ -218,31 +222,52 @@ Partial Class ConfigForm
         Me.TabSampling.Text = "Sampling"
         Me.TabSampling.UseVisualStyleBackColor = True
         '
+        'lblSampleWidth
+        '
+        Me.lblSampleWidth.AutoSize = True
+        Me.lblSampleWidth.Location = New System.Drawing.Point(6, 35)
+        Me.lblSampleWidth.Name = "lblSampleWidth"
+        Me.lblSampleWidth.Size = New System.Drawing.Size(122, 13)
+        Me.lblSampleWidth.TabIndex = 4
+        Me.lblSampleWidth.Text = "Sample Width (in pixels):"
+        '
+        'txtSampleWidth
+        '
+        Me.txtSampleWidth.Location = New System.Drawing.Point(134, 32)
+        Me.txtSampleWidth.Name = "txtSampleWidth"
+        Me.txtSampleWidth.Size = New System.Drawing.Size(49, 20)
+        Me.txtSampleWidth.TabIndex = 3
+        Me.txtSampleWidth.Text = "3"
+        Me.txtSampleWidth.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
+        '
         'txtSamplePeriod
         '
-        Me.txtSamplePeriod.Location = New System.Drawing.Point(87, 6)
+        Me.txtSamplePeriod.Location = New System.Drawing.Point(90, 6)
         Me.txtSamplePeriod.Name = "txtSamplePeriod"
         Me.txtSamplePeriod.Size = New System.Drawing.Size(49, 20)
         Me.txtSamplePeriod.TabIndex = 2
         Me.txtSamplePeriod.Text = "1000ms"
+        Me.txtSamplePeriod.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
         '
         'lblSamplePeriod
         '
         Me.lblSamplePeriod.AutoSize = True
         Me.lblSamplePeriod.Location = New System.Drawing.Point(6, 9)
         Me.lblSamplePeriod.Name = "lblSamplePeriod"
-        Me.lblSamplePeriod.Size = New System.Drawing.Size(75, 13)
+        Me.lblSamplePeriod.Size = New System.Drawing.Size(78, 13)
         Me.lblSamplePeriod.TabIndex = 1
-        Me.lblSamplePeriod.Text = "Sample Period"
+        Me.lblSamplePeriod.Text = "Sample Period:"
         '
         'SamplePeriodTrackBar
         '
+        Me.SamplePeriodTrackBar.Anchor = CType(((System.Windows.Forms.AnchorStyles.Top Or System.Windows.Forms.AnchorStyles.Left) _
+                    Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.SamplePeriodTrackBar.AutoSize = False
         Me.SamplePeriodTrackBar.BackColor = System.Drawing.Color.FromArgb(CType(CType(252, Byte), Integer), CType(CType(252, Byte), Integer), CType(CType(254, Byte), Integer))
-        Me.SamplePeriodTrackBar.Location = New System.Drawing.Point(142, 6)
+        Me.SamplePeriodTrackBar.Location = New System.Drawing.Point(145, 6)
         Me.SamplePeriodTrackBar.Maximum = 20
         Me.SamplePeriodTrackBar.Name = "SamplePeriodTrackBar"
-        Me.SamplePeriodTrackBar.Size = New System.Drawing.Size(146, 20)
+        Me.SamplePeriodTrackBar.Size = New System.Drawing.Size(143, 20)
         Me.SamplePeriodTrackBar.TabIndex = 0
         Me.SamplePeriodTrackBar.TickStyle = System.Windows.Forms.TickStyle.None
         '
@@ -289,4 +314,6 @@ Partial Class ConfigForm
     Friend WithEvents txtSamplePeriod As System.Windows.Forms.TextBox
     Friend WithEvents lblSamplePeriod As System.Windows.Forms.Label
     Friend WithEvents SamplePeriodTrackBar As System.Windows.Forms.TrackBar
+    Friend WithEvents lblSampleWidth As System.Windows.Forms.Label
+    Friend WithEvents txtSampleWidth As System.Windows.Forms.TextBox
 End Class

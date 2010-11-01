@@ -94,6 +94,34 @@
     End Property
     Event SamplePeriodMillisecondsChanged(ByVal sender As Object, ByVal e As System.EventArgs)
 
+    Private SampleWidthPixels_ As Double
+    Property SampleWidthPixels As Double
+        Get
+            Return SampleWidthPixels_
+        End Get
+        Set(ByVal value As Double)
+            If SampleWidthPixels_ <> value Then
+                SampleWidthPixels_ = value
+                RaiseEvent SampleWidthPixelsChanged(Me, New System.EventArgs)
+            End If
+        End Set
+    End Property
+    Event SampleWidthPixelsChanged(ByVal sender As Object, ByVal e As System.EventArgs)
+
+    Private DisplayRectangle_ As Rectangle
+    Property X As Integer
+        Get
+            Return DisplayRectangle_.Top
+        End Get
+        Set(ByVal value As Integer)
+            If DisplayRectangle_.Top <> value Then
+                DisplayRectangle_.X = value
+                RaiseEvent DisplayRectangleChanged(Me, New System.EventArgs)
+            End If
+        End Set
+    End Property
+    Event DisplayRectangleChanged(ByVal sender As Object, ByVal e As System.EventArgs)
+
     Private Const BMZ_REGISTRY_KEY As String = "Bandwidth Monitor Zed"
     Public Sub SaveToRegistry()
         Dim Software As Microsoft.Win32.RegistryKey = My.Computer.Registry.CurrentUser.OpenSubKey("Software", True)
@@ -104,6 +132,7 @@
         BMZ.SetValue("YAxisStyle", YAxisStyle, Microsoft.Win32.RegistryValueKind.DWord)
         BMZ.SetValue("XAxisStyle", XAxisStyle, Microsoft.Win32.RegistryValueKind.DWord)
         BMZ.SetValue("SamplePeriodMilliseconds", SamplePeriodMilliseconds, Microsoft.Win32.RegistryValueKind.DWord)
+        BMZ.SetValue("SampleWidthPixels", BitConverter.DoubleToInt64Bits(SampleWidthPixels), Microsoft.Win32.RegistryValueKind.QWord)
     End Sub
 
     Public Sub LoadFromRegistry()
@@ -116,6 +145,7 @@
             YAxisStyle = CType(BMZ.GetValue("YAxisStyle", DisplayYAxisStyle.Scale), DisplayYAxisStyle)
             XAxisStyle = CType(BMZ.GetValue("XAxisStyle", DisplayXAxisStyle.None), DisplayXAxisStyle)
             SamplePeriodMilliseconds = CInt(BMZ.GetValue("SamplePeriodMilliseconds", 1000))
+            SampleWidthPixels = BitConverter.Int64BitsToDouble(CLng(BMZ.GetValue("SampleWidthPixels", BitConverter.Int64BitsToDouble(2))))
         End If
     End Sub
 End Class
