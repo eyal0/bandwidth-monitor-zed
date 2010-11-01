@@ -1,4 +1,5 @@
 ﻿Public Class BMZConfig
+#Region "DisplayInBytes"
     Private DisplayInBytes_ As Boolean = False
     Event DisplayInBytesChanged(ByVal sender As Object, ByVal e As System.EventArgs)
     Property DisplayInBytes As Boolean
@@ -12,7 +13,9 @@
             End If
         End Set
     End Property
+#End Region
 
+#Region "KiloIs1024"
     Private KiloIs1024_ As Boolean = False
     Event KiloIs1024Changed(ByVal sender As Object, ByVal e As System.EventArgs)
     Property KiloIs1024 As Boolean
@@ -26,7 +29,9 @@
             End If
         End Set
     End Property
+#End Region
 
+#Region "ShowBars"
     Private ShowBars_ As Boolean = False
     Event ShowBarsChanged(ByVal sender As Object, ByVal e As System.EventArgs)
     Property ShowBars As Boolean
@@ -40,7 +45,9 @@
             End If
         End Set
     End Property
+#End Region
 
+#Region "YAxisStyle"
     Public Enum DisplayYAxisStyle
         None
         Max
@@ -60,7 +67,9 @@
             End If
         End Set
     End Property
+#End Region
 
+#Region "XAxisStyle"
     Public Enum DisplayXAxisStyle
         None
         Time
@@ -79,7 +88,9 @@
             End If
         End Set
     End Property
+#End Region
 
+#Region "SamplePeriodMilliseconds"
     Private SamplePeriodMilliseconds_ As Integer
     Event SamplePeriodMillisecondsChanged(ByVal sender As Object, ByVal e As System.EventArgs)
     Property SamplePeriodMilliseconds As Integer
@@ -93,7 +104,9 @@
             End If
         End Set
     End Property
+#End Region
 
+#Region "SampleWidthPixels"
     Private SampleWidthPixels_ As Double
     Event SampleWidthPixelsChanged(ByVal sender As Object, ByVal e As System.EventArgs)
     Property SampleWidthPixels As Double
@@ -107,9 +120,45 @@
             End If
         End Set
     End Property
+#End Region
 
+#Region "RunAtStartup"
+    Private RunAtStartup_ As Boolean
+    Event RunAtStartupChanged(ByVal sender As Object, ByVal e As System.EventArgs)
+    Property RunAtStartup As Boolean
+        Get
+            Return RunAtStartup_
+        End Get
+        Set(ByVal value As Boolean)
+            If RunAtStartup_ <> value Then
+                RunAtStartup_ = value
+                RaiseEvent RunAtStartupChanged(Me, New System.EventArgs)
+            End If
+        End Set
+    End Property
+#End Region
+
+#Region "RunAtStartup"
+    Private StartMinimized_ As Boolean
+    Event StartMinimizedChanged(ByVal sender As Object, ByVal e As System.EventArgs)
+    Property StartMinimized As Boolean
+        Get
+            Return StartMinimized_
+        End Get
+        Set(ByVal value As Boolean)
+            If StartMinimized_ <> value Then
+                StartMinimized_ = value
+                RaiseEvent StartMinimizedChanged(Me, New System.EventArgs)
+            End If
+        End Set
+    End Property
+#End Region
+
+#Region "StartRectangle"
     Private StartRectangle_ As Rectangle
     Event DisplayRectangleChanged(ByVal sender As Object, ByVal e As System.EventArgs)
+
+#Region "StartX"
     Property StartX As Integer
         Get
             Return StartRectangle_.X
@@ -127,7 +176,9 @@
             End If
         End Set
     End Property
+#End Region
 
+#Region "StartY"
     Property StartY As Integer
         Get
             Return StartRectangle_.Y
@@ -145,7 +196,9 @@
             End If
         End Set
     End Property
+#End Region
 
+#Region "StartWidth"
     Property StartWidth As Integer
         Get
             Return StartRectangle_.Width
@@ -163,7 +216,9 @@
             End If
         End Set
     End Property
+#End Region
 
+#Region "StartHeight"
     Property StartHeight As Integer
         Get
             Return StartRectangle_.Height
@@ -181,7 +236,9 @@
             End If
         End Set
     End Property
+#End Region
 
+#Region "StartRectangle"
     Property StartRectangle As Rectangle
         Get
             Return StartRectangle_
@@ -202,7 +259,9 @@
             End If
         End Set
     End Property
+#End Region
 
+#Region "StartLocation"
     Property StartLocation As Point
         Get
             Return StartRectangle_.Location
@@ -221,7 +280,9 @@
             End If
         End Set
     End Property
+#End Region
 
+#Region "StartSize"
     Property StartSize As Size
         Get
             Return StartRectangle_.Size
@@ -240,39 +301,55 @@
             End If
         End Set
     End Property
+#End Region
+#End Region
 
+#Region "Registry"
     Private Const BMZ_REGISTRY_KEY As String = "Bandwidth Monitor Zed"
     Public Sub SaveToRegistry()
         Dim Software As Microsoft.Win32.RegistryKey = My.Computer.Registry.CurrentUser.OpenSubKey("Software", True)
         Dim BMZ As Microsoft.Win32.RegistryKey = Software.CreateSubKey(BMZ_REGISTRY_KEY)
-        BMZ.SetValue("DisplayInBytes", DisplayInBytes, Microsoft.Win32.RegistryValueKind.DWord)
-        BMZ.SetValue("KiloIs1024", KiloIs1024, Microsoft.Win32.RegistryValueKind.DWord)
-        BMZ.SetValue("ShowBars", ShowBars, Microsoft.Win32.RegistryValueKind.DWord)
-        BMZ.SetValue("YAxisStyle", YAxisStyle, Microsoft.Win32.RegistryValueKind.DWord)
-        BMZ.SetValue("XAxisStyle", XAxisStyle, Microsoft.Win32.RegistryValueKind.DWord)
-        BMZ.SetValue("SamplePeriodMilliseconds", SamplePeriodMilliseconds, Microsoft.Win32.RegistryValueKind.DWord)
-        BMZ.SetValue("SampleWidthPixels", BitConverter.DoubleToInt64Bits(SampleWidthPixels), Microsoft.Win32.RegistryValueKind.QWord)
+        BMZ.SetValue("DisplayInBytes", DisplayInBytes_, Microsoft.Win32.RegistryValueKind.DWord)
+        BMZ.SetValue("KiloIs1024", KiloIs1024_, Microsoft.Win32.RegistryValueKind.DWord)
+        BMZ.SetValue("ShowBars", ShowBars_, Microsoft.Win32.RegistryValueKind.DWord)
+        BMZ.SetValue("YAxisStyle", YAxisStyle_, Microsoft.Win32.RegistryValueKind.DWord)
+        BMZ.SetValue("XAxisStyle", XAxisStyle_, Microsoft.Win32.RegistryValueKind.DWord)
+        BMZ.SetValue("SamplePeriodMilliseconds", SamplePeriodMilliseconds_, Microsoft.Win32.RegistryValueKind.DWord)
+        BMZ.SetValue("SampleWidthPixels", BitConverter.DoubleToInt64Bits(SampleWidthPixels_), Microsoft.Win32.RegistryValueKind.QWord)
+        BMZ.SetValue("StartMinimized", StartMinimized_, Microsoft.Win32.RegistryValueKind.DWord)
         BMZ.Close()
         Software.Close()
+        Dim Run As Microsoft.Win32.RegistryKey = My.Computer.Registry.CurrentUser.OpenSubKey("SOFTWARE\Microsoft\Windows\CurrentVersion\Run")
+        If RunAtStartup_ Then
+            Run.SetValue(BMZ_REGISTRY_KEY, Application.ExecutablePath, Microsoft.Win32.RegistryValueKind.String)
+        Else
+            Run.DeleteValue(BMZ_REGISTRY_KEY)
+        End If
+        Run.Close()
     End Sub
 
     Public Sub LoadFromRegistry()
         Dim Software As Microsoft.Win32.RegistryKey = My.Computer.Registry.CurrentUser.OpenSubKey("Software", True)
         Dim BMZ As Microsoft.Win32.RegistryKey = Software.OpenSubKey(BMZ_REGISTRY_KEY)
         If BMZ IsNot Nothing Then
-            DisplayInBytes = CBool(BMZ.GetValue("DisplayInBytes", False))
-            KiloIs1024 = CBool(BMZ.GetValue("KiloIs1024", False))
-            ShowBars = CBool(BMZ.GetValue("ShowBars", False))
-            YAxisStyle = CType(BMZ.GetValue("YAxisStyle", DisplayYAxisStyle.Scale), DisplayYAxisStyle)
-            XAxisStyle = CType(BMZ.GetValue("XAxisStyle", DisplayXAxisStyle.None), DisplayXAxisStyle)
-            SamplePeriodMilliseconds = CInt(BMZ.GetValue("SamplePeriodMilliseconds", 1000))
-            SampleWidthPixels = BitConverter.Int64BitsToDouble(CLng(BMZ.GetValue("SampleWidthPixels", BitConverter.Int64BitsToDouble(2))))
+            DisplayInBytes_ = CBool(BMZ.GetValue("DisplayInBytes", False))
+            KiloIs1024_ = CBool(BMZ.GetValue("KiloIs1024", False))
+            ShowBars_ = CBool(BMZ.GetValue("ShowBars", False))
+            YAxisStyle_ = CType(BMZ.GetValue("YAxisStyle", DisplayYAxisStyle.Scale), DisplayYAxisStyle)
+            XAxisStyle_ = CType(BMZ.GetValue("XAxisStyle", DisplayXAxisStyle.None), DisplayXAxisStyle)
+            SamplePeriodMilliseconds_ = CInt(BMZ.GetValue("SamplePeriodMilliseconds", 1000))
+            SampleWidthPixels_ = BitConverter.Int64BitsToDouble(CLng(BMZ.GetValue("SampleWidthPixels", BitConverter.Int64BitsToDouble(2))))
+            StartMinimized_ = CBool(BMZ.GetValue("StartMinimized", False))
             StartRectangle_.X = CInt(BMZ.GetValue("StartX", -1))
             StartRectangle_.Y = CInt(BMZ.GetValue("StartY", -1))
             StartRectangle_.Width = CInt(BMZ.GetValue("StartWidth", -1))
             StartRectangle_.Height = CInt(BMZ.GetValue("StartHeight", -1))
             BMZ.Close()
         End If
+        Dim Run As Microsoft.Win32.RegistryKey = My.Computer.Registry.CurrentUser.OpenSubKey("SOFTWARE\Microsoft\Windows\CurrentVersion\Run")
+        RunAtStartup_ = Run.GetValue(BMZ_REGISTRY_KEY) IsNot Nothing
+        Run.Close()
         Software.Close()
     End Sub
+#End Region
 End Class

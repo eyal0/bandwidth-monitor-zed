@@ -32,6 +32,8 @@
         If radXAxisRelative.Checked Then config.XAxisStyle = BMZConfig.DisplayXAxisStyle.Relative
         config.SamplePeriodMilliseconds = TextToMilliseconds(txtSamplePeriod.Text)
         config.SampleWidthPixels = Double.Parse(txtSampleWidth.Text)
+        config.RunAtStartup = chkRunAtStartup.Checked
+        config.StartMinimized = chkStartMinimized.Checked
         config.SaveToRegistry()
     End Sub
 
@@ -57,6 +59,8 @@
         End Select
         txtSamplePeriod.Text = MillisecondsToText(config.SamplePeriodMilliseconds)
         txtSampleWidth.Text = config.SampleWidthPixels.ToString
+        chkRunAtStartup.Checked = config.RunAtStartup
+        chkStartMinimized.Checked = config.StartMinimized
     End Sub
 
     Private Sub SamplePeriodTrackBar_Scroll(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles SamplePeriodTrackBar.Scroll
