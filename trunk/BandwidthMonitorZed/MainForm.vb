@@ -8,6 +8,11 @@
     Private upload_color As Color = Color.Green
 
     Private Sub MainForm_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Me.Load
+        config.LoadFromRegistry()
+        If config.StartRectangle.Width >= 0 Then
+            Me.Location = config.StartRectangle.Location
+            Me.Size = config.StartRectangle.Size
+        End If
         MainGraph.BorderStyle = BorderStyle.None
         MainGraph.GraphPane.XAxis.IsVisible = False
         MainGraph.GraphPane.XAxis.Type = ZedGraph.AxisType.Date
@@ -49,7 +54,6 @@
         MainGraph.GraphPane.AddCurve("Upload", UploadPoints, Color.Green, ZedGraph.SymbolType.None)
         SampleTimer.Enabled = True
 
-        config.LoadFromRegistry()
     End Sub
 
     Private Function XScaleFormatHandler(ByVal pane As ZedGraph.GraphPane, ByVal axis As ZedGraph.Axis, ByVal val As Double, ByVal index As Integer) As String
@@ -424,7 +428,7 @@
         MainGraph.Invalidate()
     End Sub
 
-    Private Sub MainGraph_Resize(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MainGraph.Resize
+    Private Sub MainGraph_Layout(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MainGraph.Layout
         MainGraph.AxisChange() 'to force recalculation of Chart size
         ReDraw() 'now redraw, which uses the new chart size
     End Sub
@@ -538,5 +542,10 @@
             Dim cf As New ConfigForm(config)
             cf.Show(Me)
         End If
+    End Sub
+
+    Private Sub MainForm_FormClosed(ByVal sender As System.Object, ByVal e As System.Windows.Forms.FormClosedEventArgs) Handles MyBase.FormClosed
+        config.StartLocation = Me.Location
+        config.StartSize = Me.Size
     End Sub
 End Class

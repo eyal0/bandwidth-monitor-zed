@@ -64,6 +64,7 @@ Partial Class MainForm
         Me.Controls.Add(Me.MainGraph)
         Me.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow
         Me.Name = "MainForm"
+        Me.StartPosition = System.Windows.Forms.FormStartPosition.Manual
         Me.Text = "Bandwidth Monitor Zed"
         Me.ResumeLayout(False)
 
