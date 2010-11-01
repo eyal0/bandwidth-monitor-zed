@@ -31,6 +31,7 @@
         If radXAxisTime.Checked Then config.XAxisStyle = BMZConfig.DisplayXAxisStyle.Time
         If radXAxisRelative.Checked Then config.XAxisStyle = BMZConfig.DisplayXAxisStyle.Relative
         config.SamplePeriodMilliseconds = TextToMilliseconds(txtSamplePeriod.Text)
+        config.SampleWidthPixels = Double.Parse(txtSampleWidth.Text)
         config.SaveToRegistry()
     End Sub
 
@@ -55,6 +56,7 @@
                 radXAxisRelative.Checked = True
         End Select
         txtSamplePeriod.Text = MillisecondsToText(config.SamplePeriodMilliseconds)
+        txtSampleWidth.Text = config.SampleWidthPixels.ToString
     End Sub
 
     Private Sub SamplePeriodTrackBar_Scroll(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles SamplePeriodTrackBar.Scroll
@@ -136,6 +138,15 @@
     Private Sub txtSamplePeriod_Validating(ByVal sender As Object, ByVal e As System.ComponentModel.CancelEventArgs) Handles txtSamplePeriod.Validating
         If TextToMilliseconds(txtSamplePeriod.Text) > 0 Then
             txtSamplePeriod.Text = MillisecondsToText(TextToMilliseconds(txtSamplePeriod.Text))
+        Else
+            e.Cancel = True
+        End If
+    End Sub
+
+    Private Sub txtSampleWidth_Validating(ByVal sender As System.Object, ByVal e As System.ComponentModel.CancelEventArgs) Handles txtSampleWidth.Validating
+        Dim SampleWidthPixels As Double
+        If Double.TryParse(txtSampleWidth.Text, SampleWidthPixels) Then
+            txtSampleWidth.Text = SampleWidthPixels.ToString()
         Else
             e.Cancel = True
         End If

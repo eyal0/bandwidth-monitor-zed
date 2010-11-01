@@ -17,6 +17,7 @@
         MainGraph.GraphPane.YAxis.Scale.MagAuto = False
         MainGraph.GraphPane.YAxis.Scale.MajorStepAuto = False
         MainGraph.GraphPane.YAxis.MinorTic.IsAllTics = False
+        MainGraph.GraphPane.XAxis.MinorTic.IsAllTics = False
         MainGraph.GraphPane.YAxis.Scale.MaxAuto = False
         MainGraph.GraphPane.YAxis.Scale.MaxGrace = 0
         MainGraph.GraphPane.YAxis.Scale.MinGrace = 0
@@ -250,7 +251,7 @@
 
             If Not config.DisplayInBytes Then magPow /= 8 'factor out the 8 that we just factored in
             MainGraph.GraphPane.YAxis.Scale.MajorStep = magMsd * magPow
-        Else
+        Else()
             MainGraph.GraphPane.YAxis.Scale.MajorStep = 0
         End If
 
@@ -403,11 +404,11 @@
             If Me.WindowState <> FormWindowState.Minimized Then
                 MainGraph.GraphPane.XAxis.Scale.Max = DownloadPoints(DownloadPoints.Count - 1).X
                 If config.XAxisStyle = BMZConfig.DisplayXAxisStyle.Relative Then
-                    MainGraph.GraphPane.XAxis.Scale.Min = MainGraph.GraphPane.XAxis.Scale.Max - MainGraph.GraphPane.Chart.Rect.Width * 1000 / 3
+                    MainGraph.GraphPane.XAxis.Scale.Min = MainGraph.GraphPane.XAxis.Scale.Max - MainGraph.GraphPane.Chart.Rect.Width * config.SamplePeriodMilliseconds / config.SampleWidthPixels
                 Else
                     MainGraph.GraphPane.XAxis.Scale.Min = _
                         ZedGraph.XDate.DateTimeToXLDate(ZedGraph.XDate.XLDateToDateTime(MainGraph.GraphPane.XAxis.Scale.Max) - _
-                                                        TimeSpan.FromSeconds(MainGraph.GraphPane.Chart.Rect.Width / 3))
+                                                        TimeSpan.FromMilliseconds(MainGraph.GraphPane.Chart.Rect.Width * config.SamplePeriodMilliseconds / config.SampleWidthPixels))
                 End If
             Else 'the chart size can't be trusted if minimized
                 MainGraph.GraphPane.XAxis.Scale.Min += DownloadPoints(DownloadPoints.Count - 1).X - MainGraph.GraphPane.XAxis.Scale.Max
@@ -463,6 +464,7 @@
         MainGraph.Invalidate()
     End Sub
 
+#Region "config events"
     Private Sub config_DisplayInBytesChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles config.DisplayInBytesChanged, _
                                                                                                           config.KiloIs1024Changed
         ReDraw()
@@ -521,14 +523,20 @@
         ReDraw()
     End Sub
 
+    Private Sub config_SamplePeriodMillisecondsChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles config.SamplePeriodMillisecondsChanged
+        SampleTimer.Interval = config.SamplePeriodMilliseconds
+        ReDraw()
+    End Sub
+
+    Private Sub config_SampleWidthPixelsChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles config.SampleWidthPixelsChanged
+        ReDraw()
+    End Sub
+#End Region
+
     Private Sub MainGraph_MouseClick(ByVal sender As System.Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles MainGraph.MouseClick
         If e.Button = Windows.Forms.MouseButtons.Right Then
             Dim cf As New ConfigForm(config)
             cf.Show(Me)
         End If
-    End Sub
-
-    Private Sub config_SamplePeriodMillisecondsChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles config.SamplePeriodMillisecondsChanged
-        SampleTimer.Interval = config.SamplePeriodMilliseconds
     End Sub
 End Class
