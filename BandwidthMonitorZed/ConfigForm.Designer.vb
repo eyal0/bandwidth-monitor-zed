@@ -85,7 +85,7 @@ Partial Class ConfigForm
         '
         Me.gbxYAxisStyle.Controls.Add(Me.radYAxisScale)
         Me.gbxYAxisStyle.Controls.Add(Me.radYAxisNone)
-        Me.gbxYAxisStyle.Location = New System.Drawing.Point(6, 75)
+        Me.gbxYAxisStyle.Location = New System.Drawing.Point(6, 120)
         Me.gbxYAxisStyle.Name = "gbxYAxisStyle"
         Me.gbxYAxisStyle.Size = New System.Drawing.Size(129, 88)
         Me.gbxYAxisStyle.TabIndex = 3
@@ -107,7 +107,7 @@ Partial Class ConfigForm
         '
         Me.btnClose.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnClose.DialogResult = System.Windows.Forms.DialogResult.Cancel
-        Me.btnClose.Location = New System.Drawing.Point(258, 222)
+        Me.btnClose.Location = New System.Drawing.Point(258, 258)
         Me.btnClose.Name = "btnClose"
         Me.btnClose.Size = New System.Drawing.Size(56, 23)
         Me.btnClose.TabIndex = 4
@@ -117,7 +117,7 @@ Partial Class ConfigForm
         'btnSave
         '
         Me.btnSave.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.btnSave.Location = New System.Drawing.Point(196, 222)
+        Me.btnSave.Location = New System.Drawing.Point(196, 258)
         Me.btnSave.Name = "btnSave"
         Me.btnSave.Size = New System.Drawing.Size(56, 23)
         Me.btnSave.TabIndex = 5
@@ -139,7 +139,7 @@ Partial Class ConfigForm
         Me.gbxXAxisStyle.Controls.Add(Me.radXAxisRelative)
         Me.gbxXAxisStyle.Controls.Add(Me.radXAxisTime)
         Me.gbxXAxisStyle.Controls.Add(Me.radXAxisNone)
-        Me.gbxXAxisStyle.Location = New System.Drawing.Point(141, 75)
+        Me.gbxXAxisStyle.Location = New System.Drawing.Point(141, 120)
         Me.gbxXAxisStyle.Name = "gbxXAxisStyle"
         Me.gbxXAxisStyle.Size = New System.Drawing.Size(132, 88)
         Me.gbxXAxisStyle.TabIndex = 7
@@ -189,7 +189,7 @@ Partial Class ConfigForm
         Me.MainTabControl.Location = New System.Drawing.Point(12, 12)
         Me.MainTabControl.Name = "MainTabControl"
         Me.MainTabControl.SelectedIndex = 0
-        Me.MainTabControl.Size = New System.Drawing.Size(302, 204)
+        Me.MainTabControl.Size = New System.Drawing.Size(302, 240)
         Me.MainTabControl.TabIndex = 8
         '
         'TabGeneral
@@ -202,7 +202,7 @@ Partial Class ConfigForm
         Me.TabGeneral.Location = New System.Drawing.Point(4, 22)
         Me.TabGeneral.Name = "TabGeneral"
         Me.TabGeneral.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabGeneral.Size = New System.Drawing.Size(294, 178)
+        Me.TabGeneral.Size = New System.Drawing.Size(294, 214)
         Me.TabGeneral.TabIndex = 0
         Me.TabGeneral.Text = "General"
         Me.TabGeneral.UseVisualStyleBackColor = True
@@ -277,7 +277,7 @@ Partial Class ConfigForm
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.CancelButton = Me.btnClose
-        Me.ClientSize = New System.Drawing.Size(326, 257)
+        Me.ClientSize = New System.Drawing.Size(326, 293)
         Me.Controls.Add(Me.MainTabControl)
         Me.Controls.Add(Me.btnSave)
         Me.Controls.Add(Me.btnClose)
