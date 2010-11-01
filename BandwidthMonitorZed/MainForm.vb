@@ -13,6 +13,9 @@
             Me.Location = config.StartRectangle.Location
             Me.Size = config.StartRectangle.Size
         End If
+        If config.StartMinimized Then
+            Me.WindowState = FormWindowState.Minimized
+        End If
         MainGraph.BorderStyle = BorderStyle.None
         MainGraph.GraphPane.XAxis.IsVisible = False
         MainGraph.GraphPane.XAxis.Type = ZedGraph.AxisType.Date

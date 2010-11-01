@@ -42,6 +42,8 @@ Partial Class ConfigForm
         Me.txtSamplePeriod = New System.Windows.Forms.TextBox()
         Me.lblSamplePeriod = New System.Windows.Forms.Label()
         Me.SamplePeriodTrackBar = New System.Windows.Forms.TrackBar()
+        Me.chkRunAtStartup = New System.Windows.Forms.CheckBox()
+        Me.chkStartMinimized = New System.Windows.Forms.CheckBox()
         Me.gbxYAxisStyle.SuspendLayout()
         Me.gbxXAxisStyle.SuspendLayout()
         Me.MainTabControl.SuspendLayout()
@@ -85,7 +87,7 @@ Partial Class ConfigForm
         '
         Me.gbxYAxisStyle.Controls.Add(Me.radYAxisScale)
         Me.gbxYAxisStyle.Controls.Add(Me.radYAxisNone)
-        Me.gbxYAxisStyle.Location = New System.Drawing.Point(6, 120)
+        Me.gbxYAxisStyle.Location = New System.Drawing.Point(6, 121)
         Me.gbxYAxisStyle.Name = "gbxYAxisStyle"
         Me.gbxYAxisStyle.Size = New System.Drawing.Size(129, 88)
         Me.gbxYAxisStyle.TabIndex = 3
@@ -107,7 +109,7 @@ Partial Class ConfigForm
         '
         Me.btnClose.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.btnClose.DialogResult = System.Windows.Forms.DialogResult.Cancel
-        Me.btnClose.Location = New System.Drawing.Point(258, 258)
+        Me.btnClose.Location = New System.Drawing.Point(247, 267)
         Me.btnClose.Name = "btnClose"
         Me.btnClose.Size = New System.Drawing.Size(56, 23)
         Me.btnClose.TabIndex = 4
@@ -117,7 +119,7 @@ Partial Class ConfigForm
         'btnSave
         '
         Me.btnSave.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
-        Me.btnSave.Location = New System.Drawing.Point(196, 258)
+        Me.btnSave.Location = New System.Drawing.Point(185, 267)
         Me.btnSave.Name = "btnSave"
         Me.btnSave.Size = New System.Drawing.Size(56, 23)
         Me.btnSave.TabIndex = 5
@@ -139,7 +141,7 @@ Partial Class ConfigForm
         Me.gbxXAxisStyle.Controls.Add(Me.radXAxisRelative)
         Me.gbxXAxisStyle.Controls.Add(Me.radXAxisTime)
         Me.gbxXAxisStyle.Controls.Add(Me.radXAxisNone)
-        Me.gbxXAxisStyle.Location = New System.Drawing.Point(141, 120)
+        Me.gbxXAxisStyle.Location = New System.Drawing.Point(141, 121)
         Me.gbxXAxisStyle.Name = "gbxXAxisStyle"
         Me.gbxXAxisStyle.Size = New System.Drawing.Size(132, 88)
         Me.gbxXAxisStyle.TabIndex = 7
@@ -189,11 +191,13 @@ Partial Class ConfigForm
         Me.MainTabControl.Location = New System.Drawing.Point(12, 12)
         Me.MainTabControl.Name = "MainTabControl"
         Me.MainTabControl.SelectedIndex = 0
-        Me.MainTabControl.Size = New System.Drawing.Size(302, 240)
+        Me.MainTabControl.Size = New System.Drawing.Size(291, 249)
         Me.MainTabControl.TabIndex = 8
         '
         'TabGeneral
         '
+        Me.TabGeneral.Controls.Add(Me.chkStartMinimized)
+        Me.TabGeneral.Controls.Add(Me.chkRunAtStartup)
         Me.TabGeneral.Controls.Add(Me.chkKiloIs1024)
         Me.TabGeneral.Controls.Add(Me.gbxXAxisStyle)
         Me.TabGeneral.Controls.Add(Me.chkDisplayInBytes)
@@ -202,7 +206,7 @@ Partial Class ConfigForm
         Me.TabGeneral.Location = New System.Drawing.Point(4, 22)
         Me.TabGeneral.Name = "TabGeneral"
         Me.TabGeneral.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabGeneral.Size = New System.Drawing.Size(294, 214)
+        Me.TabGeneral.Size = New System.Drawing.Size(283, 223)
         Me.TabGeneral.TabIndex = 0
         Me.TabGeneral.Text = "General"
         Me.TabGeneral.UseVisualStyleBackColor = True
@@ -217,7 +221,7 @@ Partial Class ConfigForm
         Me.TabSampling.Location = New System.Drawing.Point(4, 22)
         Me.TabSampling.Name = "TabSampling"
         Me.TabSampling.Padding = New System.Windows.Forms.Padding(3)
-        Me.TabSampling.Size = New System.Drawing.Size(294, 178)
+        Me.TabSampling.Size = New System.Drawing.Size(283, 199)
         Me.TabSampling.TabIndex = 1
         Me.TabSampling.Text = "Sampling"
         Me.TabSampling.UseVisualStyleBackColor = True
@@ -267,9 +271,29 @@ Partial Class ConfigForm
         Me.SamplePeriodTrackBar.Location = New System.Drawing.Point(145, 6)
         Me.SamplePeriodTrackBar.Maximum = 20
         Me.SamplePeriodTrackBar.Name = "SamplePeriodTrackBar"
-        Me.SamplePeriodTrackBar.Size = New System.Drawing.Size(143, 20)
+        Me.SamplePeriodTrackBar.Size = New System.Drawing.Size(132, 20)
         Me.SamplePeriodTrackBar.TabIndex = 0
         Me.SamplePeriodTrackBar.TickStyle = System.Windows.Forms.TickStyle.None
+        '
+        'chkRunAtStartup
+        '
+        Me.chkRunAtStartup.AutoSize = True
+        Me.chkRunAtStartup.Location = New System.Drawing.Point(6, 75)
+        Me.chkRunAtStartup.Name = "chkRunAtStartup"
+        Me.chkRunAtStartup.Size = New System.Drawing.Size(96, 17)
+        Me.chkRunAtStartup.TabIndex = 8
+        Me.chkRunAtStartup.Text = "Run At Startup"
+        Me.chkRunAtStartup.UseVisualStyleBackColor = True
+        '
+        'chkStartMinimized
+        '
+        Me.chkStartMinimized.AutoSize = True
+        Me.chkStartMinimized.Location = New System.Drawing.Point(6, 98)
+        Me.chkStartMinimized.Name = "chkStartMinimized"
+        Me.chkStartMinimized.Size = New System.Drawing.Size(97, 17)
+        Me.chkStartMinimized.TabIndex = 9
+        Me.chkStartMinimized.Text = "Start Minimized"
+        Me.chkStartMinimized.UseVisualStyleBackColor = True
         '
         'ConfigForm
         '
@@ -277,7 +301,7 @@ Partial Class ConfigForm
         Me.AutoScaleDimensions = New System.Drawing.SizeF(6.0!, 13.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.CancelButton = Me.btnClose
-        Me.ClientSize = New System.Drawing.Size(326, 293)
+        Me.ClientSize = New System.Drawing.Size(315, 302)
         Me.Controls.Add(Me.MainTabControl)
         Me.Controls.Add(Me.btnSave)
         Me.Controls.Add(Me.btnClose)
@@ -316,4 +340,6 @@ Partial Class ConfigForm
     Friend WithEvents SamplePeriodTrackBar As System.Windows.Forms.TrackBar
     Friend WithEvents lblSampleWidth As System.Windows.Forms.Label
     Friend WithEvents txtSampleWidth As System.Windows.Forms.TextBox
+    Friend WithEvents chkRunAtStartup As System.Windows.Forms.CheckBox
+    Friend WithEvents chkStartMinimized As System.Windows.Forms.CheckBox
 End Class
