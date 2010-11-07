@@ -23,9 +23,11 @@ Partial Class MainForm
     <System.Diagnostics.DebuggerStepThrough()> _
     Private Sub InitializeComponent()
         Me.components = New System.ComponentModel.Container()
+        Dim resources As System.ComponentModel.ComponentResourceManager = New System.ComponentModel.ComponentResourceManager(GetType(MainForm))
         Me.SampleTimer = New System.Windows.Forms.Timer(Me.components)
         Me.SmoothScalingTimer = New System.Windows.Forms.Timer(Me.components)
         Me.MainGraph = New ZedGraph.ZedGraphControl()
+        Me.BMZIcon = New System.Windows.Forms.NotifyIcon(Me.components)
         Me.SuspendLayout()
         '
         'SampleTimer
@@ -58,6 +60,12 @@ Partial Class MainForm
         Me.MainGraph.Size = New System.Drawing.Size(284, 262)
         Me.MainGraph.TabIndex = 0
         '
+        'BMZIcon
+        '
+        Me.BMZIcon.Icon = CType(resources.GetObject("BMZIcon.Icon"), System.Drawing.Icon)
+        Me.BMZIcon.Text = "Bandwidth Monitor Zed"
+        Me.BMZIcon.Visible = True
+        '
         'MainForm
         '
         Me.ClientSize = New System.Drawing.Size(284, 262)
@@ -72,4 +80,5 @@ Partial Class MainForm
     Friend WithEvents SampleTimer As System.Windows.Forms.Timer
     Friend WithEvents MainGraph As ZedGraph.ZedGraphControl
     Friend WithEvents SmoothScalingTimer As System.Windows.Forms.Timer
+    Friend WithEvents BMZIcon As System.Windows.Forms.NotifyIcon
 End Class

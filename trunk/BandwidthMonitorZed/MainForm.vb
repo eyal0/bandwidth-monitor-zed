@@ -8,14 +8,6 @@
     Private upload_color As Color = Color.Green
 
     Private Sub MainForm_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Me.Load
-        config.LoadFromRegistry()
-        If config.StartRectangle.Width >= 0 Then
-            Me.Location = config.StartRectangle.Location
-            Me.Size = config.StartRectangle.Size
-        End If
-        If config.StartMinimized Then
-            Me.WindowState = FormWindowState.Minimized
-        End If
         MainGraph.BorderStyle = BorderStyle.None
         MainGraph.GraphPane.XAxis.IsVisible = False
         MainGraph.GraphPane.XAxis.Type = ZedGraph.AxisType.Date
@@ -46,11 +38,20 @@
         MainGraph.GraphPane.XAxis.Scale.FontSpec.Size = 10
         MainGraph.GraphPane.XAxis.Title.IsVisible = False
         MainGraph.GraphPane.IsFontsScaled = False
-
         MainGraph.GraphPane.Title.IsVisible = False
         MainGraph.GraphPane.Legend.IsVisible = False
         MainGraph.GraphPane.Margin.All = 0
         MainGraph.GraphPane.Chart.Border.IsVisible = False
+
+        config.LoadFromRegistry()
+        If config.StartRectangle.Width >= 0 Then
+            Me.Location = config.StartRectangle.Location
+            Me.Size = config.StartRectangle.Size
+        End If
+        If config.StartMinimized Then
+            Me.WindowState = FormWindowState.Minimized
+        End If
+
         AddHandler MainGraph.GraphPane.YAxis.ScaleFormatEvent, AddressOf YScaleFormatHandler
         AddHandler MainGraph.GraphPane.YAxis.ScaleTitleEvent, AddressOf YScaleTitleHandler
         MainGraph.GraphPane.AddCurve("Download", DownloadPoints, Color.Red, ZedGraph.SymbolType.None)
@@ -405,10 +406,42 @@
         Me.DestinationMaxY = Math.Max(DownloadMax, UploadMax)
     End Sub
 
+    'from http://www.dreamincode.net/code/snippet1684.htm
+    Private Function MakeIcon(ByVal img As Image, ByVal size As Integer, ByVal keepAspectRatio As Boolean) As Icon
+        Dim square As Bitmap = New Bitmap(size, size) 'create new bitmap
+        Dim g As Graphics = Graphics.FromImage(square) 'allow drawing to it
+
+        Dim x, y, w, h As Integer 'dimenstions for new image
+
+        If Not keepAspectRatio OrElse img.Height = img.Width Then
+            x = 0
+            y = 0
+            w = size
+            h = size
+        Else
+            Dim r As Double = img.Width / img.Height
+            If r > 1 Then 'w is bigger than h so divide h by r
+                w = size
+                h = CInt(Math.Floor(size / r))
+                x = 0
+                y = CInt(Math.Floor((size - h) / 2)) 'center the image
+            Else 'h is bigger so multiply w by r
+                w = CInt(Math.Floor(size * r))
+                h = size
+                x = CInt(Math.Floor((size - w) / 2))
+                y = 0
+            End If
+        End If
+        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic
+        g.DrawImage(img, x, y, w, h)
+        g.Flush()
+        Return Icon.FromHandle(square.GetHicon())
+    End Function
+
     Private Sub ReDraw()
         If DownloadPoints.Count > 0 Then
             Dim current_time As DateTime = Now
-            If Me.WindowState <> FormWindowState.Minimized Then
+            If Me.WindowState <> FormWindowState.Minimized AndAlso MainGraph.GraphPane.Chart.Rect.Width > 0 Then
                 MainGraph.GraphPane.XAxis.Scale.Max = DownloadPoints(DownloadPoints.Count - 1).X
                 If config.XAxisStyle = BMZConfig.DisplayXAxisStyle.Relative Then
                     MainGraph.GraphPane.XAxis.Scale.Min = MainGraph.GraphPane.XAxis.Scale.Max - MainGraph.GraphPane.Chart.Rect.Width * config.SamplePeriodMilliseconds / config.SampleWidthPixels
@@ -429,6 +462,27 @@
         CalcYBoundedStepSize()
         MainGraph.AxisChange()
         MainGraph.Invalidate()
+
+        'Now update the icon
+        If BMZIcon.Icon IsNot Nothing AndAlso UploadPoints.Count > 0 AndAlso DownloadPoints.Count > 0 Then
+            Dim b As Bitmap = My.Resources.BMZ
+            For j As Integer = 7 To 9
+                For i As Integer = 1 To 14
+                    'green or dark green
+                    If UploadPoints(UploadPoints.Count - 1).Y / DestinationMaxY > ((i - 1) * 3 + (j - 7) + 0.5) / (3 * 14) Then
+                        b.SetPixel(i, j, Color.FromArgb(0, 255, 0))
+                    Else
+                        b.SetPixel(i, j, Color.FromArgb(0, 127, 0))
+                    End If
+                    If DownloadPoints(DownloadPoints.Count - 1).Y / DestinationMaxY > ((i - 1) * 3 + (j - 7) + 0.5) / (3 * 14) Then
+                        b.SetPixel(i, j + 5, Color.FromArgb(255, 0, 0))
+                    Else
+                        b.SetPixel(i, j + 5, Color.FromArgb(127, 0, 0))
+                    End If
+                Next
+            Next
+            BMZIcon.Icon = MakeIcon(b, b.Width, True)
+        End If
     End Sub
 
     Private Sub MainGraph_Layout(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MainGraph.Layout
@@ -550,5 +604,13 @@
     Private Sub MainForm_FormClosed(ByVal sender As System.Object, ByVal e As System.Windows.Forms.FormClosedEventArgs) Handles MyBase.FormClosed
         config.StartLocation = Me.Location
         config.StartSize = Me.Size
+    End Sub
+
+    Private Sub BMZIcon_MouseClick(ByVal sender As System.Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles BMZIcon.MouseClick
+        If Me.WindowState = FormWindowState.Minimized Then
+            Me.WindowState = FormWindowState.Normal
+        Else
+            Me.WindowState = FormWindowState.Minimized
+        End If
     End Sub
 End Class
