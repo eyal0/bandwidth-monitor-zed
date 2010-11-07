@@ -32,7 +32,7 @@
 #End Region
 
 #Region "ShowBars"
-    Private ShowBars_ As Boolean = False
+    Private ShowBars_ As Boolean
     Event ShowBarsChanged(ByVal sender As Object, ByVal e As System.EventArgs)
     Property ShowBars As Boolean
         Get
@@ -75,7 +75,7 @@
         Time
         Relative
     End Enum
-    Private XAxisStyle_ As DisplayXAxisStyle = DisplayXAxisStyle.None
+    Private XAxisStyle_ As DisplayXAxisStyle
     Event XAxisStyleChanged(ByVal sender As Object, ByVal e As System.EventArgs)
     Property XAxisStyle As DisplayXAxisStyle
         Get
@@ -138,7 +138,7 @@
     End Property
 #End Region
 
-#Region "RunAtStartup"
+#Region "StartMinimized"
     Private StartMinimized_ As Boolean
     Event StartMinimizedChanged(ByVal sender As Object, ByVal e As System.EventArgs)
     Property StartMinimized As Boolean
@@ -319,10 +319,10 @@
         BMZ.SetValue("StartMinimized", StartMinimized_, Microsoft.Win32.RegistryValueKind.DWord)
         BMZ.Close()
         Software.Close()
-        Dim Run As Microsoft.Win32.RegistryKey = My.Computer.Registry.CurrentUser.OpenSubKey("SOFTWARE\Microsoft\Windows\CurrentVersion\Run")
+        Dim Run As Microsoft.Win32.RegistryKey = My.Computer.Registry.CurrentUser.OpenSubKey("SOFTWARE\Microsoft\Windows\CurrentVersion\Run", True)
         If RunAtStartup_ Then
             Run.SetValue(BMZ_REGISTRY_KEY, Application.ExecutablePath, Microsoft.Win32.RegistryValueKind.String)
-        Else
+        ElseIf Run.GetValue(BMZ_REGISTRY_KEY) IsNot Nothing Then
             Run.DeleteValue(BMZ_REGISTRY_KEY)
         End If
         Run.Close()
@@ -332,21 +332,21 @@
         Dim Software As Microsoft.Win32.RegistryKey = My.Computer.Registry.CurrentUser.OpenSubKey("Software", True)
         Dim BMZ As Microsoft.Win32.RegistryKey = Software.OpenSubKey(BMZ_REGISTRY_KEY)
         If BMZ IsNot Nothing Then
-            DisplayInBytes_ = CBool(BMZ.GetValue("DisplayInBytes", False))
-            KiloIs1024_ = CBool(BMZ.GetValue("KiloIs1024", False))
-            ShowBars_ = CBool(BMZ.GetValue("ShowBars", False))
-            YAxisStyle_ = CType(BMZ.GetValue("YAxisStyle", DisplayYAxisStyle.Scale), DisplayYAxisStyle)
-            XAxisStyle_ = CType(BMZ.GetValue("XAxisStyle", DisplayXAxisStyle.None), DisplayXAxisStyle)
-            SamplePeriodMilliseconds_ = CInt(BMZ.GetValue("SamplePeriodMilliseconds", 1000))
-            SampleWidthPixels_ = BitConverter.Int64BitsToDouble(CLng(BMZ.GetValue("SampleWidthPixels", BitConverter.Int64BitsToDouble(2))))
-            StartMinimized_ = CBool(BMZ.GetValue("StartMinimized", False))
+            DisplayInBytes = CBool(BMZ.GetValue("DisplayInBytes", False))
+            KiloIs1024 = CBool(BMZ.GetValue("KiloIs1024", False))
+            ShowBars = CBool(BMZ.GetValue("ShowBars", False))
+            YAxisStyle = CType(BMZ.GetValue("YAxisStyle", DisplayYAxisStyle.Scale), DisplayYAxisStyle)
+            XAxisStyle = CType(BMZ.GetValue("XAxisStyle", DisplayXAxisStyle.None), DisplayXAxisStyle)
+            SamplePeriodMilliseconds = CInt(BMZ.GetValue("SamplePeriodMilliseconds", 1000))
+            SampleWidthPixels = BitConverter.Int64BitsToDouble(CLng(BMZ.GetValue("SampleWidthPixels", BitConverter.DoubleToInt64Bits(2))))
+            StartMinimized = CBool(BMZ.GetValue("StartMinimized", False))
             StartRectangle_.X = CInt(BMZ.GetValue("StartX", -1))
             StartRectangle_.Y = CInt(BMZ.GetValue("StartY", -1))
             StartRectangle_.Width = CInt(BMZ.GetValue("StartWidth", -1))
             StartRectangle_.Height = CInt(BMZ.GetValue("StartHeight", -1))
             BMZ.Close()
         End If
-        Dim Run As Microsoft.Win32.RegistryKey = My.Computer.Registry.CurrentUser.OpenSubKey("SOFTWARE\Microsoft\Windows\CurrentVersion\Run")
+        Dim Run As Microsoft.Win32.RegistryKey = My.Computer.Registry.CurrentUser.OpenSubKey("SOFTWARE\Microsoft\Windows\CurrentVersion\Run", True)
         RunAtStartup_ = Run.GetValue(BMZ_REGISTRY_KEY) IsNot Nothing
         Run.Close()
         Software.Close()
