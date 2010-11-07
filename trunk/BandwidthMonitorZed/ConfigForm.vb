@@ -31,9 +31,12 @@
         If radXAxisTime.Checked Then config.XAxisStyle = BMZConfig.DisplayXAxisStyle.Time
         If radXAxisRelative.Checked Then config.XAxisStyle = BMZConfig.DisplayXAxisStyle.Relative
         config.SamplePeriodMilliseconds = TextToMilliseconds(txtSamplePeriod.Text)
-        config.SampleWidthPixels = Double.Parse(txtSampleWidth.Text)
+        config.SampleWidthPixels = Double.Parse(txtSampleWidthPixels.Text)
+        config.SampleCount = Integer.Parse(txtSampleCount.Text)
         config.RunAtStartup = chkRunAtStartup.Checked
         config.StartMinimized = chkStartMinimized.Checked
+        config.AlwaysOnTop = chkAlwaysOnTop.Checked
+        config.Opacity = OpacityTrackBar.Value
         config.SaveToRegistry()
     End Sub
 
@@ -58,9 +61,12 @@
                 radXAxisRelative.Checked = True
         End Select
         txtSamplePeriod.Text = MillisecondsToText(config.SamplePeriodMilliseconds)
-        txtSampleWidth.Text = config.SampleWidthPixels.ToString
+        txtSampleWidthPixels.Text = config.SampleWidthPixels.ToString
+        txtSampleCount.Text = config.SampleCount.ToString
         chkRunAtStartup.Checked = config.RunAtStartup
         chkStartMinimized.Checked = config.StartMinimized
+        chkAlwaysOnTop.Checked = config.AlwaysOnTop
+        OpacityTrackBar.Value = config.Opacity
     End Sub
 
     Private Sub SamplePeriodTrackBar_Scroll(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles SamplePeriodTrackBar.Scroll
@@ -147,10 +153,19 @@
         End If
     End Sub
 
-    Private Sub txtSampleWidth_Validating(ByVal sender As System.Object, ByVal e As System.ComponentModel.CancelEventArgs) Handles txtSampleWidth.Validating
+    Private Sub txtSampleWidth_Validating(ByVal sender As System.Object, ByVal e As System.ComponentModel.CancelEventArgs) Handles txtSampleWidthPixels.Validating
         Dim SampleWidthPixels As Double
-        If Double.TryParse(txtSampleWidth.Text, SampleWidthPixels) Then
-            txtSampleWidth.Text = SampleWidthPixels.ToString()
+        If Double.TryParse(txtSampleWidthPixels.Text, SampleWidthPixels) Then
+            txtSampleWidthPixels.Text = SampleWidthPixels.ToString()
+        Else
+            e.Cancel = True
+        End If
+    End Sub
+
+    Private Sub txtSampleCount_Validating(ByVal sender As Object, ByVal e As System.ComponentModel.CancelEventArgs) Handles txtSampleCount.Validating
+        Dim SampleCount As Integer
+        If Integer.TryParse(txtSampleCount.Text, SampleCount) Then
+            txtSampleCount.Text = SampleCount.ToString()
         Else
             e.Cancel = True
         End If

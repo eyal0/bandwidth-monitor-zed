@@ -57,7 +57,6 @@
         MainGraph.GraphPane.AddCurve("Download", DownloadPoints, Color.Red, ZedGraph.SymbolType.None)
         MainGraph.GraphPane.AddCurve("Upload", UploadPoints, Color.Green, ZedGraph.SymbolType.None)
         SampleTimer.Enabled = True
-
     End Sub
 
     Private Function XScaleFormatHandler(ByVal pane As ZedGraph.GraphPane, ByVal axis As ZedGraph.Axis, ByVal val As Double, ByVal index As Integer) As String
@@ -131,7 +130,7 @@
         old_time = new_time
         old_dl_sample = new_dl_sample
         old_ul_sample = new_ul_sample
-        ReDraw()
+        ReDraw(False)
     End Sub
 
     Function SafeLog(ByVal d As Double, ByVal newBase As Double) As Double
@@ -212,10 +211,10 @@
     ''' Recalculate the major step size for the yAxis and update it
     ''' </summary>
     ''' <remarks></remarks>
-    Private Sub CalcYBoundedStepSize()
+    Private Sub CalcYBoundedStepSize(ByVal force As Boolean)
         Static old_range As Double = 0
         Dim range As Double = MainGraph.GraphPane.YAxis.Scale.Max - MainGraph.GraphPane.YAxis.Scale.Min
-        If old_range = range Then Exit Sub 'no change so don't bother
+        If Not force And old_range = range Then Exit Sub 'no change so don't bother
         old_range = range
         Const maxSteps As Double = 7
         If range < 0 Then range = 0
@@ -264,7 +263,7 @@
         End If
 
         Static old_major_step As Double = 0
-        If old_major_step = MainGraph.GraphPane.YAxis.Scale.MajorStep Then Exit Sub 'no change, don't bother
+        If Not force AndAlso old_major_step = MainGraph.GraphPane.YAxis.Scale.MajorStep Then Exit Sub 'no change, don't bother
         old_major_step = MainGraph.GraphPane.YAxis.Scale.MajorStep
         'now that we know that major step size, we can figure out the Units and YAxisMultFactor again
         Dim MyMajorStep As Double = MainGraph.GraphPane.YAxis.Scale.MajorStep
@@ -406,6 +405,10 @@
         Me.DestinationMaxY = Math.Max(DownloadMax, UploadMax)
     End Sub
 
+    <System.Runtime.InteropServices.DllImportAttribute("user32.dll")> _
+    Private Shared Function DestroyIcon(ByVal handle As IntPtr) As Boolean
+    End Function
+
     'from http://www.dreamincode.net/code/snippet1684.htm
     Private Function MakeIcon(ByVal img As Image, ByVal size As Integer, ByVal keepAspectRatio As Boolean) As Icon
         Dim square As Bitmap = New Bitmap(size, size) 'create new bitmap
@@ -435,10 +438,10 @@
         g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic
         g.DrawImage(img, x, y, w, h)
         g.Flush()
-        Return Icon.FromHandle(square.GetHicon())
+        MakeIcon = Icon.FromHandle(square.GetHicon())
     End Function
 
-    Private Sub ReDraw()
+    Private Sub ReDraw(ByVal force As Boolean)
         If DownloadPoints.Count > 0 Then
             Dim current_time As DateTime = Now
             If Me.WindowState <> FormWindowState.Minimized AndAlso MainGraph.GraphPane.Chart.Rect.Width > 0 Then
@@ -459,7 +462,7 @@
         If config.XAxisStyle = BMZConfig.DisplayXAxisStyle.Relative Then
             MainGraph.GraphPane.XAxis.Scale.MajorStep = CalcXBoundedStepSize(MainGraph.GraphPane.XAxis.Scale.Max - MainGraph.GraphPane.XAxis.Scale.Min, 7)
         End If
-        CalcYBoundedStepSize()
+        CalcYBoundedStepSize(force)
         MainGraph.AxisChange()
         MainGraph.Invalidate()
 
@@ -471,23 +474,29 @@
                     'green or dark green
                     If UploadPoints(UploadPoints.Count - 1).Y / DestinationMaxY > ((i - 1) * 3 + (j - 7) + 0.5) / (3 * 14) Then
                         b.SetPixel(i, j, Color.FromArgb(0, 255, 0))
-                    Else
+                    ElseIf j = 8 Then
                         b.SetPixel(i, j, Color.FromArgb(0, 127, 0))
+                    Else
+                        b.SetPixel(i, j, Color.Transparent)
                     End If
                     If DownloadPoints(DownloadPoints.Count - 1).Y / DestinationMaxY > ((i - 1) * 3 + (j - 7) + 0.5) / (3 * 14) Then
                         b.SetPixel(i, j + 5, Color.FromArgb(255, 0, 0))
-                    Else
+                    ElseIf j = 8 Then
                         b.SetPixel(i, j + 5, Color.FromArgb(127, 0, 0))
+                    Else
+                        b.SetPixel(i, j + 5, Color.Transparent)
                     End If
                 Next
             Next
-            BMZIcon.Icon = MakeIcon(b, b.Width, True)
+            Dim new_icon As Icon = MakeIcon(b, b.Width, True)
+            BMZIcon.Icon = new_icon
+            DestroyIcon(new_icon.Handle)
         End If
     End Sub
 
     Private Sub MainGraph_Layout(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MainGraph.Layout
         MainGraph.AxisChange() 'to force recalculation of Chart size
-        ReDraw() 'now redraw, which uses the new chart size
+        ReDraw(False) 'now redraw, which uses the new chart size
     End Sub
 
     Private Sub SmoothScalingTimer_Tick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles SmoothScalingTimer.Tick
@@ -520,21 +529,29 @@
         ElseIf CurrentSpeed < 1 Then 'move as current speed, at least 1
             MainGraph.GraphPane.YAxis.Scale.Max = Math.Min(MainGraph.GraphPane.YAxis.Scale.Max - 1, MainGraph.GraphPane.YAxis.Scale.Max * CurrentSpeed)
         End If
-        CalcYBoundedStepSize()
+        CalcYBoundedStepSize(False)
         MainGraph.AxisChange()
         MainGraph.Invalidate()
     End Sub
 
 #Region "config events"
+    Private Sub config_AlwaysOnTopChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles config.AlwaysOnTopChanged
+        Me.TopMost = config.AlwaysOnTop
+    End Sub
+
+    Private Sub config_OpacityChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles config.OpacityChanged
+        Me.Opacity = config.Opacity / 255
+    End Sub
+
     Private Sub config_DisplayInBytesChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles config.DisplayInBytesChanged, _
                                                                                                           config.KiloIs1024Changed
-        ReDraw()
+        ReDraw(True)
     End Sub
 
     Private Sub config_ShowBarsChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles config.ShowBarsChanged
         DownloadPoints.UseBars = config.ShowBars
         UploadPoints.UseBars = config.ShowBars
-        ReDraw()
+        ReDraw(False)
     End Sub
 
     Private Sub config_YAxisStyleChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles config.YAxisStyleChanged
@@ -553,7 +570,7 @@
                 MainGraph.GraphPane.YAxis.Scale.IsVisible = True
         End Select
         MainGraph.AxisChange() 'to force recalculation of Chart size
-        ReDraw()
+        ReDraw(False)
     End Sub
 
     Private Sub config_XAxisStyleChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles config.XAxisStyleChanged
@@ -581,23 +598,34 @@
                 MainGraph.GraphPane.XAxis.IsVisible = True
         End Select
         MainGraph.AxisChange() 'to force recalculation of Chart size
-        ReDraw()
+        ReDraw(False)
     End Sub
 
     Private Sub config_SamplePeriodMillisecondsChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles config.SamplePeriodMillisecondsChanged
         SampleTimer.Interval = config.SamplePeriodMilliseconds
-        ReDraw()
+        ReDraw(False)
     End Sub
 
     Private Sub config_SampleWidthPixelsChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles config.SampleWidthPixelsChanged
-        ReDraw()
+        ReDraw(False)
+    End Sub
+
+    Private Sub config_SampleCountChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles config.SampleCountChanged
+        DownloadPoints.Capacity = config.SampleCount
+        UploadPoints.Capacity = config.SampleCount
     End Sub
 #End Region
 
+    Dim CurrentConfigForm As ConfigForm
+
     Private Sub MainGraph_MouseClick(ByVal sender As System.Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles MainGraph.MouseClick
         If e.Button = Windows.Forms.MouseButtons.Right Then
-            Dim cf As New ConfigForm(config)
-            cf.Show(Me)
+            If CurrentConfigForm Is Nothing OrElse Not CurrentConfigForm.Visible Then
+                CurrentConfigForm = New ConfigForm(config)
+                CurrentConfigForm.Show(Me)
+            Else
+                CurrentConfigForm.Focus()
+            End If
         End If
     End Sub
 
@@ -607,10 +635,17 @@
     End Sub
 
     Private Sub BMZIcon_MouseClick(ByVal sender As System.Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles BMZIcon.MouseClick
-        If Me.WindowState = FormWindowState.Minimized Then
-            Me.WindowState = FormWindowState.Normal
+        If Not Visible Or WindowState = FormWindowState.Minimized Then
+            Visible = True
+            WindowState = FormWindowState.Normal
         Else
-            Me.WindowState = FormWindowState.Minimized
+            Visible = False
+        End If
+    End Sub
+
+    Private Sub MainForm_Resize(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.SizeChanged
+        If Me.WindowState = FormWindowState.Minimized Then
+            Me.Visible = False
         End If
     End Sub
 End Class
