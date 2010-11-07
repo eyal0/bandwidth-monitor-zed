@@ -34,6 +34,19 @@
         End Set
     End Property
 
+    Public Property Capacity As Integer
+        Get
+            Return rppl.Capacity
+        End Get
+        Set(ByVal value As Integer)
+            Dim new_rppl As New ZedGraph.RollingPointPairList(value)
+            For i As Integer = 0 To rppl.Count - 1
+                new_rppl.Add(rppl(i))
+            Next
+            rppl = new_rppl
+        End Set
+    End Property
+
     Public Function Clone() As Object Implements System.ICloneable.Clone
         Dim ret As BMZPointPairList = New BMZPointPairList(0)
         ret.rppl = Me.rppl.Clone()

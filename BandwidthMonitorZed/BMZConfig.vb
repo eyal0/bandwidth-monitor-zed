@@ -47,6 +47,38 @@
     End Property
 #End Region
 
+#Region "AlwaysOnTop"
+    Private AlwaysOnTop_ As Boolean
+    Event AlwaysOnTopChanged(ByVal sender As Object, ByVal e As System.EventArgs)
+    Property AlwaysOnTop As Boolean
+        Get
+            Return AlwaysOnTop_
+        End Get
+        Set(ByVal value As Boolean)
+            If AlwaysOnTop_ <> value Then
+                AlwaysOnTop_ = value
+                RaiseEvent AlwaysOnTopChanged(Me, New System.EventArgs)
+            End If
+        End Set
+    End Property
+#End Region
+
+#Region "Opacity"
+    Private Opacity_ As Integer
+    Event OpacityChanged(ByVal sender As Object, ByVal e As System.EventArgs)
+    Property Opacity As Integer
+        Get
+            Return Opacity_
+        End Get
+        Set(ByVal value As Integer)
+            If Opacity_ <> value Then
+                Opacity_ = value
+                RaiseEvent OpacityChanged(Me, New System.EventArgs)
+            End If
+        End Set
+    End Property
+#End Region
+
 #Region "YAxisStyle"
     Public Enum DisplayYAxisStyle
         None
@@ -117,6 +149,22 @@
             If SampleWidthPixels_ <> value Then
                 SampleWidthPixels_ = value
                 RaiseEvent SampleWidthPixelsChanged(Me, New System.EventArgs)
+            End If
+        End Set
+    End Property
+#End Region
+
+#Region "SampleCount"
+    Private SampleCount_ As Integer
+    Event SampleCountChanged(ByVal sender As Object, ByVal e As System.EventArgs)
+    Property SampleCount As Integer
+        Get
+            Return SampleCount_
+        End Get
+        Set(ByVal value As Integer)
+            If SampleCount_ <> value Then
+                SampleCount_ = value
+                RaiseEvent SampleCountChanged(Me, New System.EventArgs)
             End If
         End Set
     End Property
@@ -316,7 +364,10 @@
         BMZ.SetValue("XAxisStyle", XAxisStyle_, Microsoft.Win32.RegistryValueKind.DWord)
         BMZ.SetValue("SamplePeriodMilliseconds", SamplePeriodMilliseconds_, Microsoft.Win32.RegistryValueKind.DWord)
         BMZ.SetValue("SampleWidthPixels", BitConverter.DoubleToInt64Bits(SampleWidthPixels_), Microsoft.Win32.RegistryValueKind.QWord)
+        BMZ.SetValue("SampleCount", SampleCount_, Microsoft.Win32.RegistryValueKind.DWord)
         BMZ.SetValue("StartMinimized", StartMinimized_, Microsoft.Win32.RegistryValueKind.DWord)
+        BMZ.SetValue("AlwaysOnTop", AlwaysOnTop_, Microsoft.Win32.RegistryValueKind.DWord)
+        BMZ.SetValue("Opacity", Opacity_, Microsoft.Win32.RegistryValueKind.DWord)
         BMZ.Close()
         Software.Close()
         Dim Run As Microsoft.Win32.RegistryKey = My.Computer.Registry.CurrentUser.OpenSubKey("SOFTWARE\Microsoft\Windows\CurrentVersion\Run", True)
@@ -339,7 +390,10 @@
             XAxisStyle = CType(BMZ.GetValue("XAxisStyle", DisplayXAxisStyle.None), DisplayXAxisStyle)
             SamplePeriodMilliseconds = CInt(BMZ.GetValue("SamplePeriodMilliseconds", 1000))
             SampleWidthPixels = BitConverter.Int64BitsToDouble(CLng(BMZ.GetValue("SampleWidthPixels", BitConverter.DoubleToInt64Bits(2))))
+            SampleCount = CInt(BMZ.GetValue("SampleCount", 2000))
             StartMinimized = CBool(BMZ.GetValue("StartMinimized", False))
+            AlwaysOnTop = CBool(BMZ.GetValue("AlwaysOnTop", False))
+            Opacity = CInt(BMZ.GetValue("Opacity", 255))
             StartRectangle_.X = CInt(BMZ.GetValue("StartX", -1))
             StartRectangle_.Y = CInt(BMZ.GetValue("StartY", -1))
             StartRectangle_.Width = CInt(BMZ.GetValue("StartWidth", -1))
