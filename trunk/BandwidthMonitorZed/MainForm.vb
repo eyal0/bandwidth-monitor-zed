@@ -635,11 +635,20 @@
     End Sub
 
     Private Sub BMZIcon_MouseClick(ByVal sender As System.Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles BMZIcon.MouseClick
-        If Not Visible Or WindowState = FormWindowState.Minimized Then
+        If e.Button = Windows.Forms.MouseButtons.Left Then
+            Visible = Not Visible
+            If WindowState = FormWindowState.Minimized Then
+                WindowState = FormWindowState.Normal
+            End If
+        ElseIf e.Button = Windows.Forms.MouseButtons.Right Then
             Visible = True
             WindowState = FormWindowState.Normal
-        Else
-            Visible = False
+            If CurrentConfigForm Is Nothing OrElse Not CurrentConfigForm.Visible Then
+                CurrentConfigForm = New ConfigForm(config)
+                CurrentConfigForm.Show(Me)
+            Else
+                CurrentConfigForm.Focus()
+            End If
         End If
     End Sub
 
