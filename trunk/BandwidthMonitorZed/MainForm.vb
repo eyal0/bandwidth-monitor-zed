@@ -494,7 +494,7 @@
         End If
     End Sub
 
-    Private Sub MainGraph_Layout(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MainGraph.Layout
+    Private Sub MainGraph_Layout(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MainGraph.SizeChanged
         MainGraph.AxisChange() 'to force recalculation of Chart size
         ReDraw(False) 'now redraw, which uses the new chart size
     End Sub
