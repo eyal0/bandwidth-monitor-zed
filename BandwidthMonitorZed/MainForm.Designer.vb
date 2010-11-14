@@ -28,6 +28,11 @@ Partial Class MainForm
         Me.SmoothScalingTimer = New System.Windows.Forms.Timer(Me.components)
         Me.MainGraph = New ZedGraph.ZedGraphControl()
         Me.BMZIcon = New System.Windows.Forms.NotifyIcon(Me.components)
+        Me.BMZContextMenu = New System.Windows.Forms.ContextMenuStrip(Me.components)
+        Me.OptionsToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.ToolStripSeparator1 = New System.Windows.Forms.ToolStripSeparator()
+        Me.ExitToolStripMenuItem = New System.Windows.Forms.ToolStripMenuItem()
+        Me.BMZContextMenu.SuspendLayout()
         Me.SuspendLayout()
         '
         'SampleTimer
@@ -62,9 +67,33 @@ Partial Class MainForm
         '
         'BMZIcon
         '
+        Me.BMZIcon.ContextMenuStrip = Me.BMZContextMenu
         Me.BMZIcon.Icon = CType(resources.GetObject("BMZIcon.Icon"), System.Drawing.Icon)
         Me.BMZIcon.Text = "Bandwidth Monitor Zed"
         Me.BMZIcon.Visible = True
+        '
+        'BMZContextMenu
+        '
+        Me.BMZContextMenu.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.OptionsToolStripMenuItem, Me.ToolStripSeparator1, Me.ExitToolStripMenuItem})
+        Me.BMZContextMenu.Name = "BMZContextMenu"
+        Me.BMZContextMenu.Size = New System.Drawing.Size(153, 76)
+        '
+        'OptionsToolStripMenuItem
+        '
+        Me.OptionsToolStripMenuItem.Name = "OptionsToolStripMenuItem"
+        Me.OptionsToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
+        Me.OptionsToolStripMenuItem.Text = "Options"
+        '
+        'ToolStripSeparator1
+        '
+        Me.ToolStripSeparator1.Name = "ToolStripSeparator1"
+        Me.ToolStripSeparator1.Size = New System.Drawing.Size(149, 6)
+        '
+        'ExitToolStripMenuItem
+        '
+        Me.ExitToolStripMenuItem.Name = "ExitToolStripMenuItem"
+        Me.ExitToolStripMenuItem.Size = New System.Drawing.Size(152, 22)
+        Me.ExitToolStripMenuItem.Text = "Exit"
         '
         'MainForm
         '
@@ -75,6 +104,7 @@ Partial Class MainForm
         Me.ShowInTaskbar = False
         Me.StartPosition = System.Windows.Forms.FormStartPosition.Manual
         Me.Text = "Bandwidth Monitor Zed"
+        Me.BMZContextMenu.ResumeLayout(False)
         Me.ResumeLayout(False)
 
     End Sub
@@ -82,4 +112,8 @@ Partial Class MainForm
     Friend WithEvents MainGraph As ZedGraph.ZedGraphControl
     Friend WithEvents SmoothScalingTimer As System.Windows.Forms.Timer
     Friend WithEvents BMZIcon As System.Windows.Forms.NotifyIcon
+    Friend WithEvents BMZContextMenu As System.Windows.Forms.ContextMenuStrip
+    Friend WithEvents OptionsToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
+    Friend WithEvents ToolStripSeparator1 As System.Windows.Forms.ToolStripSeparator
+    Friend WithEvents ExitToolStripMenuItem As System.Windows.Forms.ToolStripMenuItem
 End Class
