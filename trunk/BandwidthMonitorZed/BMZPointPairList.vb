@@ -1,17 +1,13 @@
-﻿Public Class BMZPointPairList
-    Implements ZedGraph.IPointListEdit
-    Dim rppl As ZedGraph.RollingPointPairList
+﻿Public Class BMZPointPairList(Of TSource)
+    Implements ZedGraph.IPointList
+    Dim Fifo_ As IList(Of TSource)
+    Dim AccessX_ As Func(Of TSource, Double)
+    Dim AccessY_ As Func(Of TSource, Double)
 
-    Sub New(ByVal capactiy As Integer)
-        rppl = New ZedGraph.RollingPointPairList(capactiy)
-    End Sub
-
-    Sub New(ByVal rhs As ZedGraph.IPointList)
-        rppl = New ZedGraph.RollingPointPairList(rhs)
-    End Sub
-
-    Sub New(ByVal capacity As Integer, ByVal preLoad As Boolean)
-        rppl = New ZedGraph.RollingPointPairList(capacity, preLoad)
+    Sub New(ByVal Fifo As IList(Of TSource), ByVal AccessX As Func(Of TSource, Double), ByVal AccessY As Func(Of TSource, Double))
+        Fifo_ = Fifo
+        AccessX_ = AccessX
+        AccessY_ = AccessY
     End Sub
 
     Private UseBars_ As Boolean
@@ -34,81 +30,42 @@
         End Set
     End Property
 
-    Public Property Capacity As Integer
-        Get
-            Return rppl.Capacity
-        End Get
-        Set(ByVal value As Integer)
-            Dim new_rppl As New ZedGraph.RollingPointPairList(value)
-            For i As Integer = 0 To rppl.Count - 1
-                new_rppl.Add(rppl(i))
-            Next
-            rppl = new_rppl
-        End Set
-    End Property
-
     Public Function Clone() As Object Implements System.ICloneable.Clone
-        Dim ret As BMZPointPairList = New BMZPointPairList(0)
-        ret.rppl = Me.rppl.Clone()
-        Return ret
+        Return New BMZPointPairList(Of TSource)(Me.Fifo_, Me.AccessX_, Me.AccessY_)
     End Function
 
-    Public ReadOnly Property Count As Integer Implements ZedGraph.IPointListEdit.Count
+    Public ReadOnly Property Count As Integer Implements ZedGraph.IPointList.Count
         Get
             If UseBars_ Then
-                Return Math.Max(0, rppl.Count * 2 - 2)
+                Return Math.Max(0, Fifo_.Count * 2 - 2)
             Else
-                Return rppl.Count
+                Return Fifo_.Count
             End If
         End Get
     End Property
 
-    Default Property Item(ByVal index As Integer) As ZedGraph.PointPair Implements ZedGraph.IPointListEdit.Item
+    Default ReadOnly Property Item(ByVal index As Integer) As ZedGraph.PointPair Implements ZedGraph.IPointList.Item
         Get
             Dim ret As ZedGraph.PointPair
+            Dim x_item, y_item As TSource
             If UseBars_ Then
                 If index Mod 2 = 1 Then
-                    ret = rppl((index + 1) \ 2).Clone()
+                    x_item = Fifo_((index + 1) \ 2)
+                    y_item = x_item
+                    Dim current_item As TSource = Fifo_((index + 1) \ 2)
                 Else
-                    ret = rppl((index + 2) \ 2).Clone()
-                    ret.X = rppl(index \ 2).X
+                    x_item = Fifo_(index \ 2)
+                    y_item = Fifo_((index + 2) \ 2)
                 End If
             Else
-                ret = rppl(index).Clone()
+                x_item = Fifo_(index)
+                y_item = x_item
             End If
+            ret = New ZedGraph.PointPair(AccessX_(x_item), AccessY_(y_item))
             If RelativeTime_ Then
-                ret.X = (ret.X - rppl(rppl.Count - 1).X) * ZedGraph.XDate.MillisecondsPerDay
-                'Dim temp_xdate As New ZedGraph.XDate(ret.X)
-                'temp_xdate -= rppl(rppl.Count - 1).X
-                'temp_xdate()
-                'ret.X = (ZedGraph.XDate.XLDateToDateTime(ret.X) - ZedGraph.XDate.XLDateToDateTime(rppl(rppl.Count - 1).X)).TotalMilliseconds
+                ret.X = (ret.X - AccessX_(Fifo_(Fifo_.Count - 1))) * ZedGraph.XDate.MillisecondsPerDay
             End If
             Return ret
-        End Get
-        Set(ByVal value As ZedGraph.PointPair)
-            Throw New ApplicationException("Can't set BMZ points")
-        End Set
-    End Property
-
-    Public Sub Add(ByVal x As Double, ByVal y As Double) Implements ZedGraph.IPointListEdit.Add
-        rppl.Add(x, y)
-    End Sub
-
-    Public Sub Add(ByVal point As ZedGraph.PointPair) Implements ZedGraph.IPointListEdit.Add
-        rppl.Add(point)
-    End Sub
-
-    Public Sub Clear() Implements ZedGraph.IPointListEdit.Clear
-        rppl.Clear()
-    End Sub
-
-    Public Sub RemoveAt(ByVal index As Integer) Implements ZedGraph.IPointListEdit.RemoveAt
-        rppl.RemoveAt(index)
-    End Sub
-
-    Public ReadOnly Property Item1(ByVal index As Integer) As ZedGraph.PointPair Implements ZedGraph.IPointList.Item
-        Get
-            Return Item(index)
         End Get
     End Property
 End Class

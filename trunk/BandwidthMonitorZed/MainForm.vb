@@ -1,8 +1,20 @@
 ﻿Public Class MainForm
     Inherits SnapForm
     'points always stored in bytes, the lowest common denominator
-    Dim DownloadPoints As New BMZPointPairList(2000)
-    Dim UploadPoints As New BMZPointPairList(2000)
+    Structure BMZPoint
+        Sub New(ByVal X As Double, ByVal UploadY As Double, ByVal DownloadY As Double)
+            Me.X = X
+            Me.UploadY = UploadY
+            Me.DownloadY = DownloadY
+        End Sub
+
+        Dim X As Double
+        Dim UploadY As Double
+        Dim DownloadY As Double
+    End Structure
+    Dim BMZFifo As New FixedList(Of BMZPoint)(2000)
+    Dim DownloadPoints As New BMZPointPairList(Of BMZPoint)(BMZFifo, Function(i As BMZPoint) i.X, Function(i As BMZPoint) i.DownloadY)
+    Dim UploadPoints As New BMZPointPairList(Of BMZPoint)(BMZFifo, Function(i As BMZPoint) i.X, Function(i As BMZPoint) i.UploadY)
     Dim WithEvents config As BMZConfig = New BMZConfig
     Private download_color As Color = Color.Red
     Private upload_color As Color = Color.Green
@@ -123,8 +135,7 @@
         Next
         If new_time > old_time Then
             If old_time <> Date.MinValue Then 'not the first sample
-                DownloadPoints.Add(ZedGraph.XDate.DateTimeToXLDate(new_time), (new_dl_sample - old_dl_sample) / (new_time - old_time).TotalSeconds)
-                UploadPoints.Add(ZedGraph.XDate.DateTimeToXLDate(new_time), (new_ul_sample - old_ul_sample) / (new_time - old_time).TotalSeconds)
+                BMZFifo.Add(New BMZPoint(ZedGraph.XDate.DateTimeToXLDate(new_time), (new_ul_sample - old_ul_sample) / (new_time - old_time).TotalSeconds, (new_dl_sample - old_dl_sample) / (new_time - old_time).TotalSeconds))
             End If
         End If
         old_time = new_time
@@ -611,8 +622,7 @@
     End Sub
 
     Private Sub config_SampleCountChanged(ByVal sender As Object, ByVal e As System.EventArgs) Handles config.SampleCountChanged
-        DownloadPoints.Capacity = config.SampleCount
-        UploadPoints.Capacity = config.SampleCount
+        BMZFifo.Capacity = config.SampleCount
     End Sub
 #End Region
 
