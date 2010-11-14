@@ -77,7 +77,11 @@
                 ret = rppl(index).Clone()
             End If
             If RelativeTime_ Then
-                ret.X = (ZedGraph.XDate.XLDateToDateTime(ret.X) - ZedGraph.XDate.XLDateToDateTime(rppl(rppl.Count - 1).X)).TotalMilliseconds
+                ret.X = (ret.X - rppl(rppl.Count - 1).X) * ZedGraph.XDate.MillisecondsPerDay
+                'Dim temp_xdate As New ZedGraph.XDate(ret.X)
+                'temp_xdate -= rppl(rppl.Count - 1).X
+                'temp_xdate()
+                'ret.X = (ZedGraph.XDate.XLDateToDateTime(ret.X) - ZedGraph.XDate.XLDateToDateTime(rppl(rppl.Count - 1).X)).TotalMilliseconds
             End If
             Return ret
         End Get
