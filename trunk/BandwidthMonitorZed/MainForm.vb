@@ -629,6 +629,16 @@
         End If
     End Sub
 
+    'clicked Exit
+    Private ClickedExit As Boolean = False
+
+    Private Sub MainForm_FormClosing(ByVal sender As Object, ByVal e As System.Windows.Forms.FormClosingEventArgs) Handles Me.FormClosing
+        If e.CloseReason = CloseReason.UserClosing And Not ClickedExit Then
+            e.Cancel = True
+            Visible = False
+        End If
+    End Sub
+
     Private Sub MainForm_FormClosed(ByVal sender As System.Object, ByVal e As System.Windows.Forms.FormClosedEventArgs) Handles MyBase.FormClosed
         config.StartLocation = Me.Location
         config.StartSize = Me.Size
@@ -640,15 +650,6 @@
             If WindowState = FormWindowState.Minimized Then
                 WindowState = FormWindowState.Normal
             End If
-        ElseIf e.Button = Windows.Forms.MouseButtons.Right Then
-            Visible = True
-            WindowState = FormWindowState.Normal
-            If CurrentConfigForm Is Nothing OrElse Not CurrentConfigForm.Visible Then
-                CurrentConfigForm = New ConfigForm(config)
-                CurrentConfigForm.Show(Me)
-            Else
-                CurrentConfigForm.Focus()
-            End If
         End If
     End Sub
 
@@ -656,5 +657,21 @@
         If Me.WindowState = FormWindowState.Minimized Then
             Me.Visible = False
         End If
+    End Sub
+
+    Private Sub OptionsToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles OptionsToolStripMenuItem.Click
+        Visible = True
+        WindowState = FormWindowState.Normal
+        If CurrentConfigForm Is Nothing OrElse Not CurrentConfigForm.Visible Then
+            CurrentConfigForm = New ConfigForm(config)
+            CurrentConfigForm.Show(Me)
+        Else
+            CurrentConfigForm.Focus()
+        End If
+    End Sub
+
+    Private Sub ExitToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ExitToolStripMenuItem.Click
+        ClickedExit = True
+        Me.Close()
     End Sub
 End Class
