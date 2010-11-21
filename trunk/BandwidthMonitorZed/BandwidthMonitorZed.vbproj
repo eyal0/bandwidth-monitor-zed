@@ -141,10 +141,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="BMZ.png" />
+    <Folder Include="Resources\" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Resources\" />
+    <None Include="BMZ.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>
