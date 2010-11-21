@@ -19,7 +19,13 @@
     Private download_color As Color = Color.Red
     Private upload_color As Color = Color.Green
 
-    Private Sub MainForm_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles Me.Load
+    Public Sub New()
+
+        ' This call is required by the designer.
+        InitializeComponent()
+
+        ' Add any initialization after the InitializeComponent() call.
+        config.LoadFromRegistry()
         MainGraph.BorderStyle = BorderStyle.None
         MainGraph.GraphPane.XAxis.IsVisible = False
         MainGraph.GraphPane.XAxis.Type = ZedGraph.AxisType.Date
@@ -55,13 +61,9 @@
         MainGraph.GraphPane.Margin.All = 0
         MainGraph.GraphPane.Chart.Border.IsVisible = False
 
-        config.LoadFromRegistry()
         If config.StartRectangle.Width >= 0 Then
             Me.Location = config.StartRectangle.Location
             Me.Size = config.StartRectangle.Size
-        End If
-        If config.StartMinimized Then
-            Me.WindowState = FormWindowState.Minimized
         End If
 
         AddHandler MainGraph.GraphPane.YAxis.ScaleFormatEvent, AddressOf YScaleFormatHandler
@@ -69,6 +71,40 @@
         MainGraph.GraphPane.AddCurve("Download", DownloadPoints, Color.Red, ZedGraph.SymbolType.None)
         MainGraph.GraphPane.AddCurve("Upload", UploadPoints, Color.Green, ZedGraph.SymbolType.None)
         SampleTimer.Enabled = True
+    End Sub
+
+#Region "MainForm Events"
+    'clicked Exit
+    Private ClickedExit As Boolean = False
+
+    Private Sub MainForm_FormClosing(ByVal sender As Object, ByVal e As System.Windows.Forms.FormClosingEventArgs) Handles Me.FormClosing
+        If e.CloseReason = CloseReason.UserClosing And Not ClickedExit Then
+            e.Cancel = True
+            Visible = False
+        End If
+    End Sub
+
+    Private Sub MainForm_FormClosed(ByVal sender As System.Object, ByVal e As System.Windows.Forms.FormClosedEventArgs) Handles MyBase.FormClosed
+        config.StartLocation = Me.Location
+        config.StartSize = Me.Size
+    End Sub
+
+    Private Sub MainForm_Resize(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.SizeChanged
+        If Me.WindowState = FormWindowState.Minimized Then
+            Me.Visible = False
+        End If
+    End Sub
+#End Region
+
+    Dim FirstSetVisible As Boolean = True
+
+    Protected Overrides Sub SetVisibleCore(ByVal value As Boolean)
+        If config.StartMinimized And FirstSetVisible Then
+            MyBase.SetVisibleCore(False)
+            FirstSetVisible = False
+        Else
+            MyBase.SetVisibleCore(value)
+        End If
     End Sub
 
     Private Function XScaleFormatHandler(ByVal pane As ZedGraph.GraphPane, ByVal axis As ZedGraph.Axis, ByVal val As Double, ByVal index As Integer) As String
@@ -639,33 +675,12 @@
         End If
     End Sub
 
-    'clicked Exit
-    Private ClickedExit As Boolean = False
-
-    Private Sub MainForm_FormClosing(ByVal sender As Object, ByVal e As System.Windows.Forms.FormClosingEventArgs) Handles Me.FormClosing
-        If e.CloseReason = CloseReason.UserClosing And Not ClickedExit Then
-            e.Cancel = True
-            Visible = False
-        End If
-    End Sub
-
-    Private Sub MainForm_FormClosed(ByVal sender As System.Object, ByVal e As System.Windows.Forms.FormClosedEventArgs) Handles MyBase.FormClosed
-        config.StartLocation = Me.Location
-        config.StartSize = Me.Size
-    End Sub
-
     Private Sub BMZIcon_MouseClick(ByVal sender As System.Object, ByVal e As System.Windows.Forms.MouseEventArgs) Handles BMZIcon.MouseClick
         If e.Button = Windows.Forms.MouseButtons.Left Then
             Visible = Not Visible
             If WindowState = FormWindowState.Minimized Then
                 WindowState = FormWindowState.Normal
             End If
-        End If
-    End Sub
-
-    Private Sub MainForm_Resize(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.SizeChanged
-        If Me.WindowState = FormWindowState.Minimized Then
-            Me.Visible = False
         End If
     End Sub
 
