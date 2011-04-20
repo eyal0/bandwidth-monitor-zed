@@ -148,10 +148,25 @@
         YScaleTitleHandler = UnitString
     End Function
 
+    Private Class TotalAndSlowly
+        Sub New(ByVal TotalUL As Long, ByVal TotalDL As Long, ByVal Slowly As Boolean)
+            Me.TotalUL = TotalUL
+            Me.TotalDL = TotalUL
+            Me.Slowly = Slowly
+        End Sub
+
+        Public Property TotalUL As Long
+        Public Property TotalDL As Long
+        Public Property Slowly As Boolean
+    End Class
+
     Private Sub SampleTimer_Tick(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles SampleTimer.Tick
         Static Dim old_dl_sample As Long = -1
         Static Dim old_ul_sample As Long = -1
         Static Dim old_time As Date = Date.MinValue
+        Static Dim samples As New Dictionary(Of String, TotalAndSlowly)
+        Static Dim sample_count As Integer = 0
+        Const SLOW_SAMPLE_RATE As Integer = 20
 
         Dim dl_counters As New List(Of PerformanceCounter)
         Dim ul_counters As New List(Of PerformanceCounter)
@@ -160,15 +175,34 @@
         Dim new_ul_sample As Long = 0
 
         Dim new_time As DateTime = Now
+        Dim current_name_index As Integer = 0
         For Each Name As String In c.GetInstanceNames
-            If Name = "MS TCP Loopback interface" Then
-                Continue For
+            If (sample_count + current_name_index) Mod SLOW_SAMPLE_RATE = 0 _
+               OrElse Not samples.ContainsKey(Name) _
+               OrElse Not samples(Name).Slowly Then
+                'sample 1/SLOW_SAMPLE_RATE of the time or never been sampled or this one is not slowly
+                Dim dl_pc As New PerformanceCounter("Network Interface", "Bytes Received/sec", Name, True)
+                Dim dl_pc_sample As Long = dl_pc.RawValue
+                new_dl_sample += dl_pc_sample
+                Dim ul_pc As New PerformanceCounter("Network Interface", "Bytes Sent/sec", Name, True)
+                Dim ul_pc_sample As Long = ul_pc.RawValue
+                new_ul_sample += ul_pc_sample
+                If Not samples.ContainsKey(Name) Then
+                    samples.Add(Name, New TotalAndSlowly(dl_pc_sample, ul_pc_sample, _
+                                                         dl_pc_sample = 0 And ul_pc_sample = 0)) 'assume fast sampling unless both are 0
+                ElseIf (sample_count + current_name_index) Mod SLOW_SAMPLE_RATE = 0 Then
+                    'it's been SLOW_SAMPLE_RATE cycles, time to update the slowly boolean
+                    samples(Name).Slowly = (samples(Name).TotalDL = dl_pc_sample) And (samples(Name).TotalUL = ul_pc_sample)
+                    samples(Name).TotalDL = dl_pc_sample
+                    samples(Name).TotalUL = ul_pc_sample
+                End If
+            Else 'not sampling so let's cheat and just use the more recent sample
+                new_dl_sample += samples(Name).TotalDL
+                new_ul_sample += samples(Name).TotalUL
             End If
-            Dim dl_pc As New PerformanceCounter("Network Interface", "Bytes Received/sec", Name, True)
-            new_dl_sample += dl_pc.RawValue
-            Dim ul_pc As New PerformanceCounter("Network Interface", "Bytes Sent/sec", Name, True)
-            new_ul_sample += ul_pc.RawValue
+            current_name_index += 1
         Next
+        sample_count += 1
         If new_time > old_time Then
             If old_time <> Date.MinValue Then 'not the first sample
                 BMZFifo.Add(New BMZPoint(ZedGraph.XDate.DateTimeToXLDate(new_time), (new_ul_sample - old_ul_sample) / (new_time - old_time).TotalSeconds, (new_dl_sample - old_dl_sample) / (new_time - old_time).TotalSeconds))
