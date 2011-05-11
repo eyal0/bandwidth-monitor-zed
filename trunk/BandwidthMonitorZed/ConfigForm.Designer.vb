@@ -43,13 +43,14 @@ Partial Class ConfigForm
         Me.radYAxisScale = New System.Windows.Forms.RadioButton()
         Me.radYAxisNone = New System.Windows.Forms.RadioButton()
         Me.TabSampling = New System.Windows.Forms.TabPage()
+        Me.lblSampleCount = New System.Windows.Forms.Label()
         Me.txtSampleCount = New System.Windows.Forms.TextBox()
         Me.lblSampleWidth = New System.Windows.Forms.Label()
         Me.txtSampleWidthPixels = New System.Windows.Forms.TextBox()
         Me.txtSamplePeriod = New System.Windows.Forms.TextBox()
         Me.lblSamplePeriod = New System.Windows.Forms.Label()
         Me.SamplePeriodTrackBar = New System.Windows.Forms.TrackBar()
-        Me.lblSampleCount = New System.Windows.Forms.Label()
+        Me.btnQuit = New System.Windows.Forms.Button()
         Me.MainTabControl.SuspendLayout()
         Me.TabGeneral.SuspendLayout()
         CType(Me.OpacityTrackBar, System.ComponentModel.ISupportInitialize).BeginInit()
@@ -305,6 +306,15 @@ Partial Class ConfigForm
         Me.TabSampling.Text = "Sampling"
         Me.TabSampling.UseVisualStyleBackColor = True
         '
+        'lblSampleCount
+        '
+        Me.lblSampleCount.AutoSize = True
+        Me.lblSampleCount.Location = New System.Drawing.Point(6, 61)
+        Me.lblSampleCount.Name = "lblSampleCount"
+        Me.lblSampleCount.Size = New System.Drawing.Size(76, 13)
+        Me.lblSampleCount.TabIndex = 6
+        Me.lblSampleCount.Text = "Sample Count:"
+        '
         'txtSampleCount
         '
         Me.txtSampleCount.Location = New System.Drawing.Point(88, 58)
@@ -322,10 +332,10 @@ Partial Class ConfigForm
         Me.lblSampleWidth.TabIndex = 4
         Me.lblSampleWidth.Text = "Sample Width (in pixels):"
         '
-        'txtSampleWidth
+        'txtSampleWidthPixels
         '
         Me.txtSampleWidthPixels.Location = New System.Drawing.Point(134, 32)
-        Me.txtSampleWidthPixels.Name = "txtSampleWidth"
+        Me.txtSampleWidthPixels.Name = "txtSampleWidthPixels"
         Me.txtSampleWidthPixels.Size = New System.Drawing.Size(49, 20)
         Me.txtSampleWidthPixels.TabIndex = 3
         Me.txtSampleWidthPixels.TextAlign = System.Windows.Forms.HorizontalAlignment.Right
@@ -360,14 +370,15 @@ Partial Class ConfigForm
         Me.SamplePeriodTrackBar.TabIndex = 0
         Me.SamplePeriodTrackBar.TickStyle = System.Windows.Forms.TickStyle.None
         '
-        'lblSampleCount
+        'btnQuit
         '
-        Me.lblSampleCount.AutoSize = True
-        Me.lblSampleCount.Location = New System.Drawing.Point(6, 61)
-        Me.lblSampleCount.Name = "lblSampleCount"
-        Me.lblSampleCount.Size = New System.Drawing.Size(76, 13)
-        Me.lblSampleCount.TabIndex = 6
-        Me.lblSampleCount.Text = "Sample Count:"
+        Me.btnQuit.Anchor = CType((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left), System.Windows.Forms.AnchorStyles)
+        Me.btnQuit.Location = New System.Drawing.Point(12, 315)
+        Me.btnQuit.Name = "btnQuit"
+        Me.btnQuit.Size = New System.Drawing.Size(56, 23)
+        Me.btnQuit.TabIndex = 9
+        Me.btnQuit.Text = "Quit"
+        Me.btnQuit.UseVisualStyleBackColor = True
         '
         'ConfigForm
         '
@@ -376,6 +387,7 @@ Partial Class ConfigForm
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.CancelButton = Me.btnClose
         Me.ClientSize = New System.Drawing.Size(315, 350)
+        Me.Controls.Add(Me.btnQuit)
         Me.Controls.Add(Me.MainTabControl)
         Me.Controls.Add(Me.btnSave)
         Me.Controls.Add(Me.btnClose)
@@ -425,4 +437,5 @@ Partial Class ConfigForm
     Friend WithEvents radYAxisNone As System.Windows.Forms.RadioButton
     Friend WithEvents txtSampleCount As System.Windows.Forms.TextBox
     Friend WithEvents lblSampleCount As System.Windows.Forms.Label
+    Friend WithEvents btnQuit As System.Windows.Forms.Button
 End Class
