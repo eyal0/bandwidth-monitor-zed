@@ -170,4 +170,8 @@
             e.Cancel = True
         End If
     End Sub
+
+    Private Sub btnQuit_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles btnQuit.Click
+        Application.Exit()
+    End Sub
 End Class

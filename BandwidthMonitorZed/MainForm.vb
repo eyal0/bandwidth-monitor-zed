@@ -25,11 +25,8 @@
         InitializeComponent()
 
         ' Add any initialization after the InitializeComponent() call.
-        config.LoadFromRegistry()
         MainGraph.BorderStyle = BorderStyle.None
         MainGraph.GraphPane.XAxis.IsVisible = False
-        MainGraph.GraphPane.XAxis.Type = ZedGraph.AxisType.Date
-        MainGraph.GraphPane.YAxis.IsVisible = True
         MainGraph.GraphPane.Fill = New ZedGraph.Fill(Color.Black, Color.DarkGray, 90)
         MainGraph.GraphPane.Chart.Fill = New ZedGraph.Fill(Color.Transparent)
         MainGraph.GraphPane.YAxis.Scale.MagAuto = False
@@ -46,7 +43,6 @@
         MainGraph.GraphPane.YAxis.Title.FontSpec.FontColor = Color.White
         MainGraph.GraphPane.XAxis.Scale.FontSpec.FontColor = Color.White
         MainGraph.GraphPane.XAxis.Title.FontSpec.FontColor = Color.White
-        MainGraph.GraphPane.YAxis.MajorGrid.IsVisible = True
         MainGraph.GraphPane.YAxis.MajorGrid.Color = Color.LightGray
         MainGraph.GraphPane.YAxis.MajorGrid.DashOff = 2
         MainGraph.GraphPane.YAxis.MajorGrid.DashOn = 3
@@ -60,6 +56,7 @@
         MainGraph.GraphPane.Legend.IsVisible = False
         MainGraph.GraphPane.Margin.All = 0
         MainGraph.GraphPane.Chart.Border.IsVisible = False
+        config.LoadFromRegistry()
 
         If config.StartRectangle.Width >= 0 Then
             Me.Location = config.StartRectangle.Location
@@ -730,7 +727,6 @@
     End Sub
 
     Private Sub ExitToolStripMenuItem_Click(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles ExitToolStripMenuItem.Click
-        ClickedExit = True
-        Me.Close()
+        Application.Exit()
     End Sub
 End Class
