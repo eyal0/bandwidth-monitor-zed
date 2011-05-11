@@ -191,7 +191,7 @@
     End Sub
 
     Private Function SnapToDesktopBorder(ByVal NewRect As Rectangle) As Rectangle
-        Dim WorkingRect As Rectangle = Screen.GetWorkingArea(ClientRectangle)
+        Dim WorkingRect As Rectangle = Screen.GetWorkingArea(NewRect)
 
         Dim left_distance As Integer = WorkingRect.Left - NewRect.Left 'Distance to left border
         Dim right_distance As Integer = WorkingRect.Right - NewRect.Right
