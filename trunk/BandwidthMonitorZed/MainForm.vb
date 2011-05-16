@@ -179,10 +179,20 @@
                OrElse Not samples(Name).Slowly Then
                 'sample 1/SLOW_SAMPLE_RATE of the time or never been sampled or this one is not slowly
                 Dim dl_pc As New PerformanceCounter("Network Interface", "Bytes Received/sec", Name, True)
-                Dim dl_pc_sample As Long = dl_pc.RawValue
+                Dim dl_pc_sample As Long = 0
+                Try
+                    dl_pc_sample = dl_pc.RawValue
+                Catch
+                    dl_pc_sample = samples(Name).TotalDL
+                End Try
                 new_dl_sample += dl_pc_sample
                 Dim ul_pc As New PerformanceCounter("Network Interface", "Bytes Sent/sec", Name, True)
-                Dim ul_pc_sample As Long = ul_pc.RawValue
+                Dim ul_pc_sample As Long = 0
+                Try
+                    ul_pc_sample = ul_pc.RawValue
+                Catch
+                    ul_pc_sample = samples(Name).TotalUL
+                End Try
                 new_ul_sample += ul_pc_sample
                 If Not samples.ContainsKey(Name) Then
                     samples.Add(Name, New TotalAndSlowly(dl_pc_sample, ul_pc_sample, _
