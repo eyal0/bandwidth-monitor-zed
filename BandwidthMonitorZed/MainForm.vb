@@ -167,18 +167,18 @@
         Static Dim old_time As Date = Date.MinValue
         Static Dim samples As New Dictionary(Of String, TotalAndSlowly)
         Static Dim sample_count As Integer = 0
-        Const SLOW_SAMPLE_RATE As Integer = 20
 
         Dim dl_counters As New List(Of PerformanceCounter)
         Dim ul_counters As New List(Of PerformanceCounter)
         Dim c As New PerformanceCounterCategory("Network Interface")
         Dim new_dl_sample As Long = 0
         Dim new_ul_sample As Long = 0
+        Dim slow_sample_rate As Integer = c.GetInstanceNames.Length
 
         Dim new_time As DateTime = Now
         Dim current_name_index As Integer = 0
         For Each Name As String In c.GetInstanceNames
-            If (sample_count + current_name_index) Mod SLOW_SAMPLE_RATE = 0 _
+            If (sample_count + current_name_index) Mod slow_sample_rate = 0 _
                OrElse Not samples.ContainsKey(Name) _
                OrElse Not samples(Name).Slowly Then
                 'sample 1/SLOW_SAMPLE_RATE of the time or never been sampled or this one is not slowly
