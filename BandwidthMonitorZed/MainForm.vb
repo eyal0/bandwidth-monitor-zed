@@ -56,6 +56,10 @@
         MainGraph.GraphPane.Legend.IsVisible = False
         MainGraph.GraphPane.Margin.All = 0
         MainGraph.GraphPane.Chart.Border.IsVisible = False
+        MainGraph.GraphPane.YAxis.IsVisible = True
+        MainGraph.GraphPane.YAxis.MajorTic.IsAllTics = True
+        MainGraph.GraphPane.YAxis.MajorGrid.IsVisible = True
+        MainGraph.GraphPane.YAxis.Scale.IsVisible = True
         config.LoadFromRegistry()
 
         If config.StartRectangle.Width >= 0 Then
@@ -183,7 +187,7 @@
                 Try
                     dl_pc_sample = dl_pc.RawValue
                 Catch
-                    dl_pc_sample = samples(Name).TotalDL
+                    dl_pc_sample = samples(Name).TotalDL 'use the old value because the new value is broken
                 End Try
                 new_dl_sample += dl_pc_sample
                 Dim ul_pc As New PerformanceCounter("Network Interface", "Bytes Sent/sec", Name, True)
@@ -191,14 +195,13 @@
                 Try
                     ul_pc_sample = ul_pc.RawValue
                 Catch
-                    ul_pc_sample = samples(Name).TotalUL
+                    ul_pc_sample = samples(Name).TotalUL 'use the old value because the new value is broken
                 End Try
                 new_ul_sample += ul_pc_sample
                 If Not samples.ContainsKey(Name) Then
                     samples.Add(Name, New TotalAndSlowly(dl_pc_sample, ul_pc_sample, _
                                                          dl_pc_sample = 0 And ul_pc_sample = 0)) 'assume fast sampling unless both are 0
-                ElseIf (sample_count + current_name_index) Mod SLOW_SAMPLE_RATE = 0 Then
-                    'it's been SLOW_SAMPLE_RATE cycles, time to update the slowly boolean
+                Else
                     samples(Name).Slowly = (samples(Name).TotalDL = dl_pc_sample) And (samples(Name).TotalUL = ul_pc_sample)
                     samples(Name).TotalDL = dl_pc_sample
                     samples(Name).TotalUL = ul_pc_sample
