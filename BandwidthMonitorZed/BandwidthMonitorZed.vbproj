@@ -55,18 +55,14 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Deployment" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Import Include="Microsoft.VisualBasic" />
     <Import Include="System" />
     <Import Include="System.Collections" />
     <Import Include="System.Collections.Generic" />
-    <Import Include="System.Data" />
     <Import Include="System.Drawing" />
     <Import Include="System.Diagnostics" />
     <Import Include="System.Windows.Forms" />
@@ -135,21 +131,21 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\zedgraph\source\ZedGraph.csproj">
-      <Project>{2541686B-1673-43BF-AF89-3163945DB009}</Project>
-      <Name>ZedGraph</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="Resources\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="BMZ.png" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\zedgraph\source\ZedGraph.csproj">
+      <Project>{2541686b-1673-43bf-af89-3163945db009}</Project>
+      <Name>ZedGraph</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <PropertyGroup>
     <PostBuildEvent>mkdir ilmerge
-"c:\program files\Microsoft\ILMerge\ilmerge.exe" /out:"$(TargetDir)\ilmerge\BandwidthMonitorZed.exe" "$(TargetDir)\BandwidthMonitorZed.exe" "$(TargetDir)\ZedGraph.dll"</PostBuildEvent>
+"c:\program files (x86)\Microsoft\ILMerge\ilmerge.exe" /out:"$(TargetDir)\ilmerge\BandwidthMonitorZed.exe" "$(TargetDir)\BandwidthMonitorZed.exe" "$(TargetDir)\ZedGraph.dll"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
